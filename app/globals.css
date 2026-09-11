@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  border-radius: 0 !important;
+}
+
+html, body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #FFFFFF;
+  color: #0A0A0A;
+}
+
+::selection {
+  background: rgb(0, 175, 166);
+  color: white;
+}
+
+input:focus, button:focus, select:focus, textarea:focus {
+  outline: 2px solid rgb(0, 175, 166);
+  outline-offset: 2px;
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+.scan-line {
+  animation: scan-line 2.2s ease-in-out infinite;
+}

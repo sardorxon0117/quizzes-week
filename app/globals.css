@@ -28,9 +28,8 @@ input:focus, button:focus, select:focus, textarea:focus {
 }
 
 @keyframes scan-line {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(100%); }
-  100% { transform: translateY(0); }
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 2px); }
 }
 .scan-line {
   animation: scan-line 2.2s ease-in-out infinite;

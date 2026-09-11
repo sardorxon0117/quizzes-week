@@ -137,12 +137,26 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
         font: helvetica,
         color: GRAY,
       });
-      page.drawText("--yoki--", {
-        x: rightX,
+      const dividerY = cursorY - 7;
+      const dividerEnd = x + CARD_W - 12;
+      page.drawLine({
+        start: { x: rightX, y: dividerY },
+        end: { x: rightX + 22, y: dividerY },
+        thickness: 0.7,
+        color: rgb(0.78, 0.88, 0.87),
+      });
+      page.drawText("yoki", {
+        x: rightX + 26,
         y: cursorY - 9,
         size: 5.5,
         font: helvetica,
         color: GRAY,
+      });
+      page.drawLine({
+        start: { x: rightX + 45, y: dividerY },
+        end: { x: dividerEnd, y: dividerY },
+        thickness: 0.7,
+        color: rgb(0.78, 0.88, 0.87),
       });
       page.drawText("Quyidagi savol kodini", {
         x: rightX,

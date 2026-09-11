@@ -18,6 +18,7 @@ export default function QuestionForm({
   const [error, setError] = useState<string | null>(null);
   const [checkingGroup, setCheckingGroup] = useState(false);
   const [alreadyAnswered, setAlreadyAnswered] = useState(false);
+  const [answeredBy, setAnsweredBy] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -25,14 +26,16 @@ export default function QuestionForm({
     setGroupId(value);
     setError(null);
     setAlreadyAnswered(false);
+    setAnsweredBy(null);
     if (!value) return;
 
     setCheckingGroup(true);
     try {
-      const res = await fetch(`/api/submissions?questionId=${questionId}&groupId=${value}`);
+      const res = await fetch(`/api/submissions?questionId=${questionId}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error);
       setAlreadyAnswered(Boolean(data.answered));
+      setAnsweredBy(data.submission?.group_name || null);
     } catch {
       setError("Guruh holatini tekshirib bo'lmadi. Qaytadan urinib ko'ring.");
     } finally {
@@ -60,7 +63,8 @@ export default function QuestionForm({
       });
       const data = await res.json();
       if (res.status === 409) {
-        setError("Bu savolga guruhingiz allaqachon javob bergan.");
+        setAlreadyAnswered(true);
+        setAnsweredBy(data?.groupName || null);
         setSubmitting(false);
         return;
       }
@@ -115,7 +119,9 @@ export default function QuestionForm({
       {alreadyAnswered && (
         <div className="border-2 border-[rgb(255,199,0)] bg-[rgb(255,248,210)] p-4" role="alert">
           <p className="font-bold text-neutral-950">Bu savolga javob berib bo'lingan</p>
-          <p className="mt-1 text-sm text-neutral-700">Guruhingiz ushbu QR savolga allaqachon javob yuborgan.</p>
+          <p className="mt-1 text-sm text-neutral-700">
+            Bu savolga {answeredBy ? `${answeredBy} guruhi` : "boshqa guruh"} tomonidan javob berilgan.
+          </p>
         </div>
       )}
 

@@ -26,3 +26,18 @@ export async function queryOne<T = any>(text: string, params?: any[]): Promise<T
   const rows = await query<T>(text, params);
   return rows[0] ?? null;
 }
+
+export async function withTransaction<T>(callback: (client: import("pg").PoolClient) => Promise<T>) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await callback(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}

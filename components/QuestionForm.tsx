@@ -16,8 +16,29 @@ export default function QuestionForm({
   const [groupId, setGroupId] = useState<string>("");
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [checkingGroup, setCheckingGroup] = useState(false);
+  const [alreadyAnswered, setAlreadyAnswered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  async function handleGroupChange(value: string) {
+    setGroupId(value);
+    setError(null);
+    setAlreadyAnswered(false);
+    if (!value) return;
+
+    setCheckingGroup(true);
+    try {
+      const res = await fetch(`/api/submissions?questionId=${questionId}&groupId=${value}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error);
+      setAlreadyAnswered(Boolean(data.answered));
+    } catch {
+      setError("Guruh holatini tekshirib bo'lmadi. Qaytadan urinib ko'ring.");
+    } finally {
+      setCheckingGroup(false);
+    }
+  }
 
   async function handleSubmit() {
     setError(null);
@@ -25,6 +46,7 @@ export default function QuestionForm({
       setError("Iltimos, guruhingizni tanlang.");
       return;
     }
+    if (alreadyAnswered) return;
     if (!answer.trim()) {
       setError("Javobni kiriting.");
       return;
@@ -77,8 +99,8 @@ export default function QuestionForm({
         </label>
         <select
           value={groupId}
-          onChange={(e) => setGroupId(e.target.value)}
-          className="w-full border-2 border-neutral-300 px-4 py-3 font-semibold text-neutral-900 bg-white"
+          onChange={(e) => handleGroupChange(e.target.value)}
+          className="w-full border-2 border-neutral-300 bg-white px-4 py-3 font-semibold text-neutral-900"
         >
           <option value="">Guruhingizni tanlang</option>
           {groups.map((g) => (
@@ -88,6 +110,14 @@ export default function QuestionForm({
           ))}
         </select>
       </div>
+
+      {checkingGroup && <p className="text-sm font-semibold text-[rgb(0,145,137)]">Guruh holati tekshirilmoqda...</p>}
+      {alreadyAnswered && (
+        <div className="border-2 border-[rgb(255,199,0)] bg-[rgb(255,248,210)] p-4" role="alert">
+          <p className="font-bold text-neutral-950">Bu savolga javob berib bo'lingan</p>
+          <p className="mt-1 text-sm text-neutral-700">Guruhingiz ushbu QR savolga allaqachon javob yuborgan.</p>
+        </div>
+      )}
 
       <div>
         <label className="block text-xs font-bold text-neutral-500 mb-2 uppercase tracking-wide">
@@ -106,10 +136,10 @@ export default function QuestionForm({
 
       <button
         onClick={handleSubmit}
-        disabled={submitting}
-        className="w-full py-3.5 font-bold text-white bg-[rgb(0,175,166)] disabled:opacity-60 transition-opacity"
+        disabled={submitting || checkingGroup || alreadyAnswered}
+        className="w-full bg-[rgb(0,175,166)] py-3.5 font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500"
       >
-        {submitting ? "Yuborilmoqda..." : "Javobni yuborish"}
+        {alreadyAnswered ? "Javob yuborilgan" : submitting ? "Yuborilmoqda..." : "Javobni yuborish"}
       </button>
     </div>
   );

@@ -25,8 +25,8 @@ export default async function QuestionPage({ params }: { params: { code: string 
   return (
     <div className="min-h-screen flex flex-col">
       <StudentHeader />
-      <main className="flex-1 px-5 sm:px-8 py-8 sm:py-12">
-        <div className="max-w-sm mx-auto">
+      <main className="flex-1 bg-[linear-gradient(135deg,#f4fffd_0%,#ffffff_55%,#fff9dc_100%)] px-5 py-8 sm:px-10 sm:py-14">
+        <div className="mx-auto max-w-2xl">
           {!question ? (
             <div className="text-center py-16">
               <p className="text-lg font-bold text-neutral-900">Savol topilmadi</p>
@@ -44,15 +44,19 @@ export default async function QuestionPage({ params }: { params: { code: string 
               </Link>
             </div>
           ) : (
-            <>
-              <div className="text-xs font-bold tracking-wide text-[rgb(0,175,166)] mb-2">
-                #{question.code}
+            <div className="border-2 border-neutral-950 bg-white p-5 shadow-[8px_8px_0_rgb(255,199,0)] sm:p-8">
+              <div className="mb-8 flex items-start justify-between gap-4 border-b-2 border-neutral-950 pb-5">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(0,145,137)]">Bugungi challenge</p>
+                  <div className="mt-2 text-sm font-black tracking-wide text-neutral-500">#{question.code}</div>
+                </div>
+                <span className="h-4 w-4 shrink-0 bg-[rgb(0,175,166)]" />
               </div>
-              <h1 className="text-2xl font-bold text-neutral-900 leading-snug mb-8">
+              <h1 className="mb-8 text-3xl font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-4xl">
                 {question.question}
               </h1>
               <QuestionForm questionId={question.id} groups={groups} />
-            </>
+            </div>
           )}
         </div>
       </main>

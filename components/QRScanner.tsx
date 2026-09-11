@@ -105,7 +105,7 @@ export default function QRScanner() {
       {error && (
         <p className="text-center text-sm text-red-600 mt-3 font-medium">{error}</p>
       )}
-      <p className="text-center text-xs text-neutral-400 mt-3">
+      <p className="mt-3 text-center text-xs font-medium text-neutral-500">
         QR kodni kamera ramkasi ichiga joylashtiring
       </p>
     </div>

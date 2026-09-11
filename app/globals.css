@@ -7,9 +7,14 @@
 }
 
 html, body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Trebuchet MS", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #FFFFFF;
   color: #0A0A0A;
+}
+
+body {
+  background-image: linear-gradient(rgba(0, 175, 166, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 175, 166, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 ::selection {

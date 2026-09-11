@@ -11,8 +11,8 @@ export default function StudentHeader() {
           </svg>
         </span>
         <span className="leading-none">
-          <span className="block text-lg font-black tracking-tight text-[rgb(255,199,0)]">QUIZZES WEEK</span>
-          <span className="block text-[10px] font-bold tracking-[0.12em] text-white">PDP University</span>
+          <span className="block text-lg font-black tracking-tight text-white">QUIZZES WEEK</span>
+          <span className="block text-[10px] font-bold tracking-[0.12em] text-[rgb(255,199,0)]">PDP University</span>
         </span>
       </Link>
       <Link

@@ -39,6 +39,7 @@ export default function HomePage() {
             </div>
             <CodeEntry />
           </div>
+          </section>
       </main>
       <Footer />
     </div>

@@ -5,14 +5,16 @@ const PRIMARY = rgb(0 / 255, 175 / 255, 166 / 255);
 const SECONDARY = rgb(255 / 255, 199 / 255, 0 / 255);
 const DARK = rgb(0.06, 0.06, 0.06);
 const GRAY = rgb(0.45, 0.45, 0.45);
+const PAPER = rgb(0.985, 0.995, 0.99);
+const PALE_TEAL = rgb(0.91, 0.98, 0.97);
 
 const MM_TO_PT = 2.834645669;
 const PAGE_W = 210 * MM_TO_PT;
 const PAGE_H = 297 * MM_TO_PT;
 const MARGIN = 18 * MM_TO_PT * 0.9; // ~16mm
-const GUTTER = 6 * MM_TO_PT;
+const GUTTER = 4 * MM_TO_PT;
 const COLS = 2;
-const ROWS = 4;
+const ROWS = 5;
 const CARD_W = (PAGE_W - MARGIN * 2 - GUTTER * (COLS - 1)) / COLS;
 const CARD_H = (PAGE_H - MARGIN * 2 - GUTTER * (ROWS - 1)) / ROWS;
 
@@ -41,18 +43,18 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
       const yTop = PAGE_H - MARGIN - row * (CARD_H + GUTTER);
       const y = yTop - CARD_H;
 
-      // card border (thin, geometric — no radius)
+      // A compact 2 x 5 print grid with a clean PDP-style card surface.
       page.drawRectangle({
         x,
         y,
         width: CARD_W,
         height: CARD_H,
-        borderColor: rgb(0.85, 0.85, 0.85),
-        borderWidth: 0.75,
+        color: PAPER,
+        borderColor: PRIMARY,
+        borderWidth: 1.1,
       });
 
-      // left teal geometric block
-      const leftW = CARD_W * 0.42;
+      const leftW = CARD_W * 0.39;
       page.drawRectangle({
         x,
         y,
@@ -61,14 +63,8 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
         color: PRIMARY,
       });
 
-      // secondary accent strip
-      page.drawRectangle({
-        x: x + leftW - 4,
-        y,
-        width: 4,
-        height: CARD_H,
-        color: SECONDARY,
-      });
+      page.drawRectangle({ x, y: y + CARD_H - 5, width: CARD_W, height: 5, color: SECONDARY });
+      page.drawRectangle({ x: x + leftW - 3, y, width: 3, height: CARD_H, color: SECONDARY });
 
       // QR code (white plate inside teal block)
       let qrPng = qrCache.get(item.code);
@@ -85,8 +81,8 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
         qrCache.set(item.code, qrPng);
       }
 
-      const qrSize = Math.min(leftW, CARD_H) - 20;
-      const qrPlatePad = 8;
+      const qrSize = Math.min(leftW, CARD_H) - 18;
+      const qrPlatePad = 6;
       const plateSize = qrSize + qrPlatePad * 2;
       const plateX = x + (leftW - plateSize) / 2;
       const plateY = y + (CARD_H - plateSize) / 2;
@@ -105,49 +101,64 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
         height: qrSize,
       });
 
-      // right text zone
-      const rightX = x + leftW + 14;
-      const rightW = CARD_W - leftW - 24;
-      let cursorY = y + CARD_H - 26;
-
-      page.drawText("QUIZZES", {
-        x: rightX,
-        y: cursorY,
-        size: 15,
+      page.drawText("SCAN ME", {
+        x: x + 12,
+        y: y + 9,
+        size: 6,
         font: helveticaBold,
-        color: DARK,
+        color: rgb(1, 1, 1),
       });
-      cursorY -= 16;
-      page.drawText("WEEK", {
+
+      // right text zone
+      const rightX = x + leftW + 12;
+      const rightW = CARD_W - leftW - 21;
+      let cursorY = y + CARD_H - 22;
+
+      page.drawText("PDP UNIVERSITY", {
         x: rightX,
         y: cursorY,
-        size: 15,
+        size: 6.5,
         font: helveticaBold,
         color: PRIMARY,
       });
-      cursorY -= 14;
-      page.drawText("PDP University", {
+      cursorY -= 13;
+
+      page.drawText("QUIZZES WEEK", {
         x: rightX,
         y: cursorY,
-        size: 8,
-        font: helvetica,
-        color: GRAY,
+        size: 12,
+        font: helveticaBold,
+        color: DARK,
       });
-
-      cursorY -= 20;
+      cursorY -= 15;
       page.drawText("QR kodni skanerlang", {
         x: rightX,
         y: cursorY,
-        size: 7.5,
+        size: 7,
         font: helvetica,
         color: GRAY,
       });
 
+      page.drawRectangle({
+        x: rightX,
+        y: cursorY - 17,
+        width: Math.min(rightW, 92),
+        height: 12,
+        color: PALE_TEAL,
+      });
+      page.drawText("SAVOL KODI", {
+        x: rightX + 6,
+        y: cursorY - 13.5,
+        size: 5.5,
+        font: helveticaBold,
+        color: PRIMARY,
+      });
+
       // code at bottom, large & bold
-      const codeSize = 24;
+      const codeSize = 19;
       page.drawText(item.code, {
         x: rightX,
-        y: y + 16,
+        y: y + 13,
         size: codeSize,
         font: helveticaBold,
         color: DARK,
@@ -156,9 +167,9 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
       // baseline rule above code
       page.drawLine({
         start: { x: rightX, y: y + 40 },
-        end: { x: x + CARD_W - 12, y: y + 40 },
+        end: { x: x + CARD_W - 12, y: y + 36 },
         thickness: 0.75,
-        color: rgb(0.85, 0.85, 0.85),
+        color: rgb(0.78, 0.88, 0.87),
       });
     }
   }

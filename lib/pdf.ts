@@ -6,7 +6,6 @@ const SECONDARY = rgb(255 / 255, 199 / 255, 0 / 255);
 const DARK = rgb(0.06, 0.06, 0.06);
 const GRAY = rgb(0.45, 0.45, 0.45);
 const PAPER = rgb(0.985, 0.995, 0.99);
-const PALE_TEAL = rgb(0.91, 0.98, 0.97);
 
 const MM_TO_PT = 2.834645669;
 const PAGE_W = 210 * MM_TO_PT;
@@ -111,10 +110,9 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
 
       // right text zone
       const rightX = x + leftW + 12;
-      const rightW = CARD_W - leftW - 21;
       let cursorY = y + CARD_H - 22;
 
-      page.drawText("PDP UNIVERSITY", {
+      page.drawText("PDP University", {
         x: rightX,
         y: cursorY,
         size: 6.5,
@@ -132,46 +130,45 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
       });
       cursorY -= 15;
       const siteHost = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-      page.drawText("QR KODNI SKANERLAB", {
+      page.drawText("QR kodni skanerlang", {
         x: rightX,
         y: cursorY,
-        size: 5.8,
-        font: helveticaBold,
+        size: 5.5,
+        font: helvetica,
         color: GRAY,
       });
-      page.drawText("BO'LMAY QOLSA YOKI", {
+      page.drawText("--yoki--", {
         x: rightX,
         y: cursorY - 9,
-        size: 5.8,
+        size: 5.5,
+        font: helvetica,
+        color: GRAY,
+      });
+      page.drawText("Quyidagi savol kodini", {
+        x: rightX,
+        y: cursorY - 18,
+        size: 5.5,
         font: helvetica,
         color: GRAY,
       });
       page.drawText(siteHost, {
         x: rightX,
-        y: cursorY - 18,
-        size: 5.5,
+        y: cursorY - 27,
+        size: 5.2,
         font: helveticaBold,
         color: PRIMARY,
       });
-      page.drawText("SAYTI ORQALI QUYIDAGI", {
+      page.drawText("web saytiga kiriting", {
         x: rightX,
-        y: cursorY - 27,
-        size: 5.4,
+        y: cursorY - 36,
+        size: 5.5,
         font: helvetica,
         color: GRAY,
       });
-
-      page.drawRectangle({
+      page.drawText("Savol kodi:", {
         x: rightX,
-        y: cursorY - 42,
-        width: Math.min(rightW, 92),
-        height: 12,
-        color: PALE_TEAL,
-      });
-      page.drawText("SAVOL KODINI KIRITING", {
-        x: rightX + 6,
-        y: cursorY - 38.5,
-        size: 5.2,
+        y: y + 39,
+        size: 6,
         font: helveticaBold,
         color: PRIMARY,
       });
@@ -188,7 +185,7 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
 
       // baseline rule above code
       page.drawLine({
-        start: { x: rightX, y: y + 40 },
+        start: { x: rightX, y: y + 35 },
         end: { x: x + CARD_W - 12, y: y + 36 },
         thickness: 0.75,
         color: rgb(0.78, 0.88, 0.87),

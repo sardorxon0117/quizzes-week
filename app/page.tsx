@@ -38,7 +38,6 @@ export default function HomePage() {
               <div className="h-px flex-1 bg-neutral-200" />
             </div>
             <CodeEntry />
-          </div>
           </section>
       </main>
       <Footer />

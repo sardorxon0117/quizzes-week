@@ -132,39 +132,46 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
       });
       cursorY -= 15;
       const siteHost = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-      page.drawText("QR KODNI SKANERLANG", {
+      page.drawText("QR KODNI SKANERLAB", {
         x: rightX,
         y: cursorY,
-        size: 6.2,
+        size: 5.8,
         font: helveticaBold,
         color: GRAY,
       });
-      page.drawText("YOKI SAYTGA KIRIB", {
+      page.drawText("BO'LMAY QOLSA YOKI", {
         x: rightX,
         y: cursorY - 9,
-        size: 6.2,
+        size: 5.8,
         font: helvetica,
         color: GRAY,
       });
       page.drawText(siteHost, {
         x: rightX,
         y: cursorY - 18,
-        size: 5.8,
+        size: 5.5,
         font: helveticaBold,
         color: PRIMARY,
+      });
+      page.drawText("SAYTI ORQALI QUYIDAGI", {
+        x: rightX,
+        y: cursorY - 27,
+        size: 5.4,
+        font: helvetica,
+        color: GRAY,
       });
 
       page.drawRectangle({
         x: rightX,
-        y: cursorY - 34,
+        y: cursorY - 42,
         width: Math.min(rightW, 92),
         height: 12,
         color: PALE_TEAL,
       });
-      page.drawText("SAVOL KODI", {
+      page.drawText("SAVOL KODINI KIRITING", {
         x: rightX + 6,
-        y: cursorY - 30.5,
-        size: 5.5,
+        y: cursorY - 38.5,
+        size: 5.2,
         font: helveticaBold,
         color: PRIMARY,
       });

@@ -10,25 +10,9 @@ const READER_ID = "qw-qr-reader";
 type Camera = { id: string; label: string };
 type CameraTarget = string | { facingMode: string };
 
-// Phones often expose several rear lenses (main, 0.5x ultra-wide, telephoto).
-// `facingMode: "environment"` doesn't guarantee the main sensor — on quite a
-// few devices it hands back the ultra-wide one, which focuses badly up
-// close. So on first load we enumerate the actual cameras and pick the main
-// lens by label; from then on the switch button just cycles through
-// whatever cameras the phone actually reported, in order.
-const AVOID_LENS_KEYWORDS = ["ultra wide", "ultra-wide", "wide angle", "0.5", "0,5", "telephoto", "tele lens", "macro"];
-
 function isBackCamera(label: string) {
   const l = label.toLowerCase();
   return !(l.includes("front") || l.includes("user") || l.includes("face"));
-}
-
-function pickMainLensIndex(cameras: Camera[]): number {
-  const index = cameras.findIndex((c) => {
-    const label = c.label.toLowerCase();
-    return !AVOID_LENS_KEYWORDS.some((kw) => label.includes(kw));
-  });
-  return index === -1 ? 0 : index;
 }
 
 function parseCode(text: string): string | null {
@@ -48,10 +32,11 @@ export default function QRScanner() {
   const containerRef = useRef<HTMLDivElement>(null);
   const scannerCtorRef = useRef<any>(null);
   const scannerRef = useRef<any>(null);
-  const camerasRef = useRef<Camera[]>([]);
+  const camerasRef = useRef<Camera[] | null>(null); // null = not enumerated yet (avoids a redundant getUserMedia flicker)
   const cameraIndexRef = useRef(0);
   const handledRef = useRef(false);
   const mountedRef = useRef(true);
+  const switchingRef = useRef(false);
 
   const [starting, setStarting] = useState(true);
   const [canSwitch, setCanSwitch] = useState(false);
@@ -107,31 +92,29 @@ export default function QRScanner() {
     }
   }
 
-  function currentCameraTarget(): CameraTarget {
-    const cameras = camerasRef.current;
-    const cam = cameras[cameraIndexRef.current];
-    return cam ? cam.id : { facingMode: "environment" };
-  }
-
+  // A single, plain `facingMode` request on first load — no camera
+  // enumeration up front. Html5Qrcode.getCameras() internally opens a
+  // throwaway getUserMedia stream just to read device labels, then closes
+  // it, before our own start() opens the real one — i.e. the camera would
+  // visibly flick on/off twice right as the popup opens. Enumerating only
+  // happens lazily, the first time the switch button is actually pressed.
   async function init() {
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
       if (!mountedRef.current || !containerRef.current) return;
       scannerCtorRef.current = Html5Qrcode;
 
-      let cameras: Camera[] = [];
+      // Cheap device count (no permission prompt, no stream) just to decide
+      // whether the switch button is worth showing at all.
       try {
-        const all: Camera[] = await Html5Qrcode.getCameras();
-        cameras = all.filter((c) => isBackCamera(c.label));
-        if (!cameras.length) cameras = all;
+        const devices = await navigator.mediaDevices?.enumerateDevices();
+        const videoInputs = devices?.filter((d) => d.kind === "videoinput") ?? [];
+        setCanSwitch(videoInputs.length > 1);
       } catch {
-        // Enumeration blocked/unsupported — fall back to a plain facingMode request below.
+        // Ignore — the switch button simply won't show pre-emptively.
       }
-      camerasRef.current = cameras;
-      cameraIndexRef.current = cameras.length ? pickMainLensIndex(cameras) : 0;
-      setCanSwitch(cameras.length > 1);
 
-      await startWithCamera(currentCameraTarget());
+      await startWithCamera({ facingMode: "environment" });
     } catch {
       setStarting(false);
       setPhase("error");
@@ -175,26 +158,60 @@ export default function QRScanner() {
   }
 
   async function handleSwitchCamera() {
-    const cameras = camerasRef.current;
-    if (cameras.length < 2) return;
-    handledRef.current = false;
-    await stopScanner();
-    cameraIndexRef.current = (cameraIndexRef.current + 1) % cameras.length;
-    await startWithCamera(currentCameraTarget());
+    if (switchingRef.current) return;
+    switchingRef.current = true;
+    try {
+      const Html5Qrcode = scannerCtorRef.current;
+      let cameras = camerasRef.current;
+
+      if (!cameras) {
+        // First press: figure out which device is currently running, then
+        // fetch the labeled list and resume right after it.
+        const runningDeviceId = scannerRef.current?.getRunningTrackSettings?.()?.deviceId;
+        await stopScanner();
+        try {
+          const all: Camera[] = await Html5Qrcode.getCameras();
+          cameras = all.filter((c) => isBackCamera(c.label));
+          if (!cameras.length) cameras = all;
+        } catch {
+          cameras = [];
+        }
+        camerasRef.current = cameras;
+        if (!cameras.length) return;
+
+        const currentIndex = cameras.findIndex((c) => c.id === runningDeviceId);
+        cameraIndexRef.current = currentIndex === -1 ? 0 : currentIndex;
+      } else {
+        if (cameras.length < 2) return;
+        handledRef.current = false;
+        await stopScanner();
+      }
+
+      cameraIndexRef.current = (cameraIndexRef.current + 1) % cameras.length;
+      await startWithCamera(cameras[cameraIndexRef.current].id);
+    } finally {
+      switchingRef.current = false;
+    }
   }
 
   function handleRetry() {
     handledRef.current = false;
-    startWithCamera(currentCameraTarget());
+    const cameras = camerasRef.current;
+    const camera: CameraTarget = cameras?.length ? cameras[cameraIndexRef.current].id : { facingMode: "environment" };
+    startWithCamera(camera);
   }
+
+  const showStatus = starting || phase === "checking" || phase === "redirecting" || phase === "error";
+  const statusPhase: StatusPhase = phase === "error" ? "error" : phase === "redirecting" ? "redirecting" : "checking";
+  const statusLabel = starting && phase === "scanning" ? "Kamera ishga tushirilmoqda..." : undefined;
 
   return (
     <div className="w-full">
       <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-2xl bg-neutral-900 shadow-inner">
         <div id={READER_ID} ref={containerRef} className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
 
-        {phase === "scanning" && (
-          <div className="pointer-events-none absolute inset-6 sm:inset-8">
+        {phase === "scanning" && !starting && (
+          <div className="pointer-events-none absolute inset-[10%]">
             <div className="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-[rgb(0,175,166)]" />
             <div className="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-[rgb(0,175,166)]" />
             <div className="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-[rgb(0,175,166)]" />
@@ -203,7 +220,7 @@ export default function QRScanner() {
           </div>
         )}
 
-        {canSwitch && phase === "scanning" && (
+        {canSwitch && phase === "scanning" && !starting && (
           <button
             type="button"
             onClick={handleSwitchCamera}
@@ -220,16 +237,11 @@ export default function QRScanner() {
           </button>
         )}
 
-        {starting && phase === "scanning" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 text-white text-sm backdrop-blur-sm">
-            Kamera ishga tushirilmoqda...
-          </div>
-        )}
-
-        {(phase === "checking" || phase === "redirecting" || phase === "error") && (
+        {showStatus && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/95 px-6 backdrop-blur-md">
             <StatusView
-              phase={phase === "error" ? "error" : phase}
+              phase={statusPhase}
+              label={statusLabel}
               errorMessage={errorMessage}
               onRetry={phase === "error" ? handleRetry : undefined}
             />

@@ -2,10 +2,12 @@ export type StatusPhase = "checking" | "redirecting" | "error";
 
 export default function StatusView({
   phase,
+  label,
   errorMessage,
   onRetry,
 }: {
   phase: StatusPhase;
+  label?: string;
   errorMessage?: string;
   onRetry?: () => void;
 }) {
@@ -36,7 +38,7 @@ export default function StatusView({
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       <span className="h-10 w-10 animate-spin rounded-full border-4 border-[rgb(0,175,166)]/20 border-t-[rgb(0,175,166)]" />
       <p className="text-sm font-semibold text-neutral-700">
-        {phase === "redirecting" ? "Savolga yo'naltirilmoqda..." : "Tekshirilmoqda..."}
+        {label ?? (phase === "redirecting" ? "Savolga yo'naltirilmoqda..." : "Tekshirilmoqda...")}
       </p>
     </div>
   );

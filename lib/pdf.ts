@@ -1,8 +1,9 @@
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb, RGB } from "pdf-lib";
+import { PDFDocument, PDFFont, PDFPage, PDFPageDrawSVGOptions, StandardFonts, rgb, RGB } from "pdf-lib";
 import QRCode from "qrcode";
 
 const PRIMARY = rgb(0 / 255, 175 / 255, 166 / 255);
 const DARK = rgb(0.06, 0.06, 0.06);
+const GRAY = rgb(0.45, 0.45, 0.45);
 const WHITE = rgb(1, 1, 1);
 
 function lerpColor(c1: RGB, c2: RGB, t: number): RGB {
@@ -26,18 +27,20 @@ const CARD_W = (PAGE_W - MARGIN * 2 - GUTTER * (COLS - 1)) / COLS;
 const CARD_H = (PAGE_H - MARGIN * 2 - GUTTER * (ROWS - 1)) / ROWS;
 const RADIUS = Math.min(CARD_W, CARD_H) * 0.15;
 
+function roundedRectPath(w: number, h: number, r: number): string {
+  return `M ${r},0 H ${w - r} A ${r},${r} 0 0 1 ${w},${r} V ${h - r} A ${r},${r} 0 0 1 ${w - r},${h} H ${r} A ${r},${r} 0 0 1 0,${h - r} V ${r} A ${r},${r} 0 0 1 ${r},0 Z`;
+}
+
 /**
- * pdf-lib has no native rounded-rectangle. Instead we draw the shape with
- * sharp corners (fill + border in one call) and, once it's fully drawn,
- * punch 4 circles of the surrounding color at its corners — cheap and
- * reliable, with none of the coordinate-flip surprises `drawSvgPath` has
- * for arcs. Only safe for a radius well under half the shape's height.
+ * A genuine rounded rectangle (real arcs, like CSS border-radius) instead of
+ * a sharp rect with circles punched over its corners. pdf-lib has no native
+ * rounded-rect primitive, so this goes through `drawSvgPath` — the one
+ * subtlety is that it expects the shape's *top*-left as `y` (SVG is
+ * y-down), which for our normal PDF bottom-left (x, y, w, h) convention
+ * means passing `y + h`.
  */
-function roundCorners(page: PDFPage, x: number, y: number, w: number, h: number, r: number, bg: RGB) {
-  page.drawCircle({ x: x + r, y: y + h - r, size: r, color: bg });
-  page.drawCircle({ x: x + w - r, y: y + h - r, size: r, color: bg });
-  page.drawCircle({ x: x + r, y: y + r, size: r, color: bg });
-  page.drawCircle({ x: x + w - r, y: y + r, size: r, color: bg });
+function drawRoundedRect(page: PDFPage, x: number, y: number, w: number, h: number, r: number, opts: PDFPageDrawSVGOptions) {
+  page.drawSvgPath(roundedRectPath(w, h, r), { x, y: y + h, ...opts });
 }
 
 export type CardItem = { code: string; question?: string };
@@ -56,32 +59,25 @@ async function drawCard(
 ) {
   const w = CARD_W;
   const h = CARD_H;
-  const r = RADIUS;
 
-  // 1. card — pale brand-tinted background, one clean rounded border.
-  // Built from two solid fills (outer color + inset inner color) rather
-  // than pdf-lib's borderColor/borderWidth stroke — with many cards per
-  // page the stroked version rendered with a rippled/wavy edge in poppler.
-  const cardBorder = 1.4;
-  page.drawRectangle({ x, y, width: w, height: h, color: PRIMARY, opacity: 0.55 });
-  page.drawRectangle({ x: x + cardBorder, y: y + cardBorder, width: w - cardBorder * 2, height: h - cardBorder * 2, color: BG });
-  roundCorners(page, x, y, w, h, r, WHITE);
+  // 1. card — pale brand-tinted background, one clean rounded border
+  drawRoundedRect(page, x, y, w, h, RADIUS, {
+    color: BG,
+    borderColor: PRIMARY,
+    borderWidth: 1.4,
+    borderOpacity: 0.6,
+  });
 
   // 2. QR frame — a simple rounded primary-colored outline, white inside, QR centered
   const frameSize = h * 0.72;
   const frameX = x + w * 0.07;
   const frameY = y + (h - frameSize) / 2;
   const frameR = frameSize * 0.16;
-  const frameBorder = 2.4;
-  page.drawRectangle({ x: frameX, y: frameY, width: frameSize, height: frameSize, color: PRIMARY });
-  page.drawRectangle({
-    x: frameX + frameBorder,
-    y: frameY + frameBorder,
-    width: frameSize - frameBorder * 2,
-    height: frameSize - frameBorder * 2,
+  drawRoundedRect(page, frameX, frameY, frameSize, frameSize, frameR, {
     color: WHITE,
+    borderColor: PRIMARY,
+    borderWidth: 2.4,
   });
-  roundCorners(page, frameX, frameY, frameSize, frameSize, frameR, BG);
 
   const qrPad = frameSize * 0.13;
   const qrSize = frameSize - qrPad * 2;
@@ -97,15 +93,30 @@ async function drawCard(
 
   // 3. right side — plain text, nothing else
   const rightX = frameX + frameSize + 20;
-  let cy = y + h - 28;
+  let cy = y + h - 22;
   page.drawText("PDP University", { x: rightX, y: cy, size: 7.5, font: fonts.bold, color: PRIMARY });
-  cy -= 19;
-  page.drawText("QUIZZES WEEK", { x: rightX, y: cy, size: 14, font: fonts.bold, color: DARK });
-  cy -= 20;
+  cy -= 16;
+  page.drawText("QUIZZES WEEK", { x: rightX, y: cy, size: 13, font: fonts.bold, color: DARK });
+  cy -= 17;
+  page.drawText("Skaner qiling", { x: rightX, y: cy, size: 7, font: fonts.regular, color: GRAY });
+  cy -= 10;
+  page.drawText("-- yoki --", { x: rightX, y: cy, size: 6.5, font: fonts.regular, color: GRAY });
+  cy -= 10;
   const siteHost = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
   page.drawText(siteHost, { x: rightX, y: cy, size: 7, font: fonts.bold, color: PRIMARY });
-  cy -= 34;
-  page.drawText(item.code, { x: rightX, y: cy, size: 26, font: fonts.bold, color: DARK });
+  cy -= 10;
+  page.drawText("saytiga quyidagi", { x: rightX, y: cy, size: 7, font: fonts.regular, color: GRAY });
+  cy -= 9;
+  page.drawText("savol kodini kiriting", { x: rightX, y: cy, size: 7, font: fonts.regular, color: GRAY });
+  cy -= 20;
+
+  const codeLabel = "Savol kodi: ";
+  const codeLabelSize = 7.5;
+  const codeSize = 13;
+  const formattedCode = item.code.length === 6 ? `${item.code.slice(0, 3)} ${item.code.slice(3)}` : item.code;
+  page.drawText(codeLabel, { x: rightX, y: cy, size: codeLabelSize, font: fonts.regular, color: GRAY });
+  const labelWidth = fonts.regular.widthOfTextAtSize(codeLabel, codeLabelSize);
+  page.drawText(formattedCode, { x: rightX + labelWidth + 4, y: cy - 1, size: codeSize, font: fonts.bold, color: DARK });
 }
 
 export async function generateCardsPdf(items: CardItem[], baseUrl: string): Promise<Uint8Array> {

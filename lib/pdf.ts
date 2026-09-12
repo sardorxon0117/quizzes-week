@@ -119,6 +119,25 @@ async function drawCard(
   page.drawText(formattedCode, { x: rightX + labelWidth + 4, y: cy - 1, size: codeSize, font: fonts.bold, color: DARK });
 }
 
+const CUT_LINE_COLOR = rgb(0.6, 0.6, 0.6);
+
+/** Dashed cut/trim guides running through the middle of each gutter, edge
+ * to edge across the sheet — for lining up scissors or a paper cutter once
+ * printed, same as press-shop crop marks. */
+function drawCutLines(page: PDFPage) {
+  const dashOpts = { color: CUT_LINE_COLOR, thickness: 0.6, dashArray: [4, 3], opacity: 0.8 };
+
+  for (let col = 1; col < COLS; col++) {
+    const cx = MARGIN + col * CARD_W + (col - 0.5) * GUTTER;
+    page.drawLine({ start: { x: cx, y: 0 }, end: { x: cx, y: PAGE_H }, ...dashOpts });
+  }
+
+  for (let row = 1; row < ROWS; row++) {
+    const cy = PAGE_H - MARGIN - row * CARD_H - (row - 0.5) * GUTTER;
+    page.drawLine({ start: { x: 0, y: cy }, end: { x: PAGE_W, y: cy }, ...dashOpts });
+  }
+}
+
 export async function generateCardsPdf(items: CardItem[], baseUrl: string): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
   const fonts: Fonts = {
@@ -144,6 +163,8 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
 
       await drawCard(page, x, y, pageItems[i], baseUrl, fonts, qrCache, pdfDoc);
     }
+
+    drawCutLines(page);
   }
 
   return pdfDoc.save();

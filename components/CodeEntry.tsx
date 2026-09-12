@@ -41,7 +41,7 @@ export default function CodeEntry() {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto mt-8">
+    <div className="w-full max-w-sm mx-auto">
       <p className="text-center text-sm font-semibold text-neutral-700 mb-3">
         Savol kodini kiriting
       </p>

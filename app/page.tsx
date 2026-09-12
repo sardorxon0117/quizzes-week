@@ -1,6 +1,6 @@
 import StudentHeader from "@/components/StudentHeader";
 import Footer from "@/components/Footer";
-import QRScanner from "@/components/QRScanner";
+import ScannerModal from "@/components/ScannerModal";
 import CodeEntry from "@/components/CodeEntry";
 import { getSetting, COMPETITION_INFO_KEY } from "@/lib/settings";
 
@@ -36,13 +36,13 @@ export default async function HomePage() {
               <p className="text-xs font-black uppercase tracking-[0.18em] text-neutral-950">Savolga kirish</p>
               <span className="h-2.5 w-2.5 rounded-full bg-[rgb(255,199,0)] shadow-[0_0_0_4px_rgba(255,199,0,0.2)]" />
             </div>
-            <QRScanner />
+            <CodeEntry />
             <div className="my-6 flex items-center gap-3">
               <div className="h-px flex-1 bg-neutral-200/70" />
-              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">yoki kod bilan</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">yoki</span>
               <div className="h-px flex-1 bg-neutral-200/70" />
             </div>
-            <CodeEntry />
+            <ScannerModal />
           </section>
         </div>
 

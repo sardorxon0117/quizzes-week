@@ -29,6 +29,26 @@ function pickMainBackCamera(cameras: { id: string; label: string }[]): string | 
   return (mainLens ?? pool[0]).id;
 }
 
+// On plenty of Android phones the multi-lens back camera isn't exposed as
+// separate devices at all — the browser sees ONE "back camera" and switches
+// between the 0.5x/1x/telephoto physical lenses purely via the `zoom`
+// constraint. When that's the case the stream often opens on the ultra-wide
+// end of the range by default, which is exactly the blurry/unfocused 0.5x
+// view being reported. `zoom: 1` is the spec's "no zoom" / normal-lens value,
+// so force it whenever the running track exposes a zoom capability that
+// includes it.
+async function forceNormalLensZoom(scanner: any) {
+  try {
+    const capabilities = scanner.getRunningTrackCapabilities?.() as any;
+    const zoom = capabilities?.zoom;
+    if (!zoom || typeof zoom.min !== "number" || typeof zoom.max !== "number") return;
+    const target = zoom.min <= 1 && zoom.max >= 1 ? 1 : zoom.min;
+    await scanner.applyVideoConstraints({ advanced: [{ zoom: target }] } as any);
+  } catch {
+    // Zoom control isn't supported on this browser/device — nothing to do.
+  }
+}
+
 export default function QRScanner() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,6 +96,7 @@ export default function QRScanner() {
           cameraRef.current = { facingMode: "environment" };
           await scanner.start(cameraRef.current, config, onDecoded, () => {});
         }
+        await forceNormalLensZoom(scanner);
         setStarting(false);
       } catch (e: any) {
         setStarting(false);
@@ -134,16 +155,8 @@ export default function QRScanner() {
       <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-2xl bg-neutral-900 shadow-inner">
         <div id="qw-qr-reader" ref={containerRef} className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
 
-        {/* Blur everything outside the center scan box so the eye lands on the one spot that matters */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-x-0 top-0 h-[18%] backdrop-blur-md bg-neutral-900/35" />
-          <div className="absolute inset-x-0 bottom-0 h-[18%] backdrop-blur-md bg-neutral-900/35" />
-          <div className="absolute left-0 top-[18%] bottom-[18%] w-[18%] backdrop-blur-md bg-neutral-900/35" />
-          <div className="absolute right-0 top-[18%] bottom-[18%] w-[18%] backdrop-blur-md bg-neutral-900/35" />
-        </div>
-
-        {/* corner frame around the clear center */}
-        <div className="pointer-events-none absolute inset-[18%]">
+        {/* corner frame */}
+        <div className="pointer-events-none absolute inset-6 sm:inset-8">
           <div className="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-[rgb(0,175,166)]" />
           <div className="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-[rgb(0,175,166)]" />
           <div className="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-[rgb(0,175,166)]" />

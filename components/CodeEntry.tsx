@@ -2,42 +2,38 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import PopupShell from "./PopupShell";
+import StatusView, { StatusPhase } from "./StatusView";
+import { checkQuestionCode, codeCheckMessage } from "@/lib/checkQuestionCode";
 
 export default function CodeEntry() {
   const router = useRouter();
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
+  const [checkState, setCheckState] = useState<StatusPhase | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const digits = code.padEnd(6, " ").split("").slice(0, 6);
 
   function handleChange(v: string) {
     const cleaned = v.replace(/\D/g, "").slice(0, 6);
     setCode(cleaned);
-    setError(null);
   }
 
-  async function handleOpen() {
-    if (code.length !== 6) return;
-    setChecking(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/questions/${code}`);
-      if (res.status === 404) {
-        setError("Savol topilmadi");
-        setChecking(false);
-        return;
-      }
-      if (!res.ok) {
-        setError("Xatolik yuz berdi. Qaytadan urinib ko'ring.");
-        setChecking(false);
-        return;
-      }
+  async function runCheck() {
+    setCheckState("checking");
+    const result = await checkQuestionCode(code);
+    if (result.kind === "ok") {
+      setCheckState("redirecting");
       router.push(`/q/${code}`);
-    } catch {
-      setError("Internet xatosi. Qaytadan urinib ko'ring.");
-      setChecking(false);
+    } else {
+      setCheckState("error");
+      setErrorMessage(codeCheckMessage(result));
     }
+  }
+
+  function handleOpen() {
+    if (code.length !== 6) return;
+    runCheck();
   }
 
   return (
@@ -73,15 +69,23 @@ export default function CodeEntry() {
         </div>
       </div>
 
-      {error && <p className="text-center text-sm text-red-600 mt-3 font-medium">{error}</p>}
-
       <button
         onClick={handleOpen}
-        disabled={code.length !== 6 || checking}
+        disabled={code.length !== 6}
         className="w-full mt-5 rounded-xl py-3.5 font-bold text-white bg-[rgb(0,175,166)] shadow-md shadow-teal-900/20 transition-all active:scale-95 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none"
       >
-        {checking ? "Tekshirilmoqda..." : "Savolni ochish"}
+        Savolni ochish
       </button>
+
+      {checkState && (
+        <PopupShell title="Savol tekshirilmoqda" onClose={() => setCheckState(null)}>
+          <StatusView
+            phase={checkState}
+            errorMessage={errorMessage}
+            onRetry={checkState === "error" ? runCheck : undefined}
+          />
+        </PopupShell>
+      )}
     </div>
   );
 }

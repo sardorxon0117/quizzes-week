@@ -3,16 +3,57 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type CameraTarget = string | { facingMode: string };
+
+// Phones often expose several rear lenses (main, 0.5x ultra-wide, telephoto).
+// `facingMode: "environment"` doesn't guarantee the main sensor — on quite a
+// few devices it hands back the ultra-wide one, which focuses badly up close
+// and makes QR codes harder to read than on any normal scanner app. So we
+// enumerate the actual cameras and pick the main lens by label instead.
+const AVOID_LENS_KEYWORDS = ["ultra wide", "ultra-wide", "wide angle", "0.5", "0,5", "telephoto", "tele lens", "macro"];
+
+function pickMainBackCamera(cameras: { id: string; label: string }[]): string | null {
+  if (!cameras.length) return null;
+
+  const backCameras = cameras.filter((c) => {
+    const label = c.label.toLowerCase();
+    return !(label.includes("front") || label.includes("user") || label.includes("face"));
+  });
+
+  const pool = backCameras.length ? backCameras : cameras;
+  const mainLens = pool.find((c) => {
+    const label = c.label.toLowerCase();
+    return !AVOID_LENS_KEYWORDS.some((kw) => label.includes(kw));
+  });
+
+  return (mainLens ?? pool[0]).id;
+}
+
 export default function QRScanner() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const scannerRef = useRef<any>(null);
+  const cameraRef = useRef<CameraTarget | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(true);
   const handledRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
+
+    async function resolveCamera(Html5Qrcode: any): Promise<CameraTarget> {
+      if (cameraRef.current) return cameraRef.current;
+      let target: CameraTarget = { facingMode: "environment" };
+      try {
+        const cameras = await Html5Qrcode.getCameras();
+        const id = pickMainBackCamera(cameras);
+        if (id) target = id;
+      } catch {
+        // Couldn't enumerate cameras (older browser, denied earlier, etc.) — fall back below.
+      }
+      cameraRef.current = target;
+      return target;
+    }
 
     async function start() {
       try {
@@ -23,23 +64,29 @@ export default function QRScanner() {
         const scanner = new Html5Qrcode(id, { verbose: false });
         scannerRef.current = scanner;
 
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 220, height: 220 } },
-          (decodedText: string) => {
-            if (handledRef.current) return;
-            handledRef.current = true;
-            handleDecoded(decodedText);
-          },
-          () => {
-            /* ignore per-frame scan errors */
-          }
-        );
+        const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+        const camera = await resolveCamera(Html5Qrcode);
+
+        try {
+          await scanner.start(camera, config, onDecoded, () => {});
+        } catch (err) {
+          // A specific deviceId can occasionally fail to start on some browsers —
+          // retry once with the generic facingMode request before giving up.
+          if (typeof camera !== "string") throw err;
+          cameraRef.current = { facingMode: "environment" };
+          await scanner.start(cameraRef.current, config, onDecoded, () => {});
+        }
         setStarting(false);
       } catch (e: any) {
         setStarting(false);
         setError("Kameraga ruxsat berilmadi yoki kamera topilmadi.");
       }
+    }
+
+    function onDecoded(decodedText: string) {
+      if (handledRef.current) return;
+      handledRef.current = true;
+      handleDecoded(decodedText);
     }
 
     function handleDecoded(text: string) {

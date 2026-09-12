@@ -15,9 +15,6 @@ export default async function HomePage() {
       <main className="flex-1 px-5 py-10 sm:px-10 sm:py-14">
         <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <section className="order-2 lg:order-1">
-            <p className="mb-5 inline-flex rounded-full bg-[rgb(0,175,166)]/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[rgb(0,145,137)] sm:text-xs">
-              PDP University · Quizzes Week
-            </p>
             <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-[-0.04em] text-neutral-950 sm:text-7xl">
               Bilimingizni<br /><span className="text-[rgb(0,175,166)]">namoyish qiling.</span>
             </h1>
@@ -45,19 +42,6 @@ export default async function HomePage() {
             <ScannerModal />
           </section>
         </div>
-
-        {competitionInfo && (
-          <a
-            href="#musobaqa"
-            className="mt-8 flex animate-bounce flex-col items-center gap-1 text-neutral-400 lg:hidden"
-            aria-label="Pastga qarab, musobaqa haqida o'qing"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest">Batafsil</span>
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        )}
 
         {competitionInfo && (
           <div id="musobaqa" className="mx-auto mt-8 max-w-6xl scroll-mt-24 lg:mt-14">

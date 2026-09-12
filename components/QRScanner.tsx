@@ -10,11 +10,6 @@ const READER_ID = "qw-qr-reader";
 type Camera = { id: string; label: string };
 type CameraTarget = string | { facingMode: string };
 
-function isBackCamera(label: string) {
-  const l = label.toLowerCase();
-  return !(l.includes("front") || l.includes("user") || l.includes("face"));
-}
-
 function parseCode(text: string): string | null {
   try {
     const url = new URL(text);
@@ -170,9 +165,11 @@ export default function QRScanner() {
         const runningDeviceId = scannerRef.current?.getRunningTrackSettings?.()?.deviceId;
         await stopScanner();
         try {
-          const all: Camera[] = await Html5Qrcode.getCameras();
-          cameras = all.filter((c) => isBackCamera(c.label));
-          if (!cameras.length) cameras = all;
+          // Trust the browser's own list completely — no label filtering.
+          // Excluding anything by name (e.g. "front"/"face") backfired: a
+          // laptop's built-in webcam is often literally called "FaceTime HD
+          // Camera", so it was being skipped over entirely.
+          cameras = await Html5Qrcode.getCameras();
         } catch {
           cameras = [];
         }

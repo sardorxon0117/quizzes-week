@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function PopupShell({
   title,
@@ -11,6 +12,16 @@ export default function PopupShell({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  // Render into document.body via a portal instead of in-place. Any
+  // ancestor that uses `backdrop-filter` (our own `.glass` cards, used all
+  // over the app) becomes a containing block for `position: fixed`
+  // descendants in WebKit/Safari — so without a portal this popup was being
+  // sized and centered relative to that glass card, not the viewport,
+  // which is why it looked squeezed into a small box instead of covering
+  // the screen.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -27,7 +38,9 @@ export default function PopupShell({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       className="popup-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-5 backdrop-blur-sm"
       onClick={onClose}
@@ -51,6 +64,7 @@ export default function PopupShell({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

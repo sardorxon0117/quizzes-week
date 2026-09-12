@@ -84,11 +84,19 @@ export default function QRScanner() {
 
   return (
     <div className="w-full">
-      <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-2xl bg-black shadow-inner">
+      <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-2xl bg-neutral-900 shadow-inner">
         <div id="qw-qr-reader" ref={containerRef} className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
 
-        {/* corner frame */}
-        <div className="pointer-events-none absolute inset-6 sm:inset-8">
+        {/* Blur everything outside the center scan box so the eye lands on the one spot that matters */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-x-0 top-0 h-[18%] backdrop-blur-md bg-neutral-900/35" />
+          <div className="absolute inset-x-0 bottom-0 h-[18%] backdrop-blur-md bg-neutral-900/35" />
+          <div className="absolute left-0 top-[18%] bottom-[18%] w-[18%] backdrop-blur-md bg-neutral-900/35" />
+          <div className="absolute right-0 top-[18%] bottom-[18%] w-[18%] backdrop-blur-md bg-neutral-900/35" />
+        </div>
+
+        {/* corner frame around the clear center */}
+        <div className="pointer-events-none absolute inset-[18%]">
           <div className="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-[rgb(0,175,166)]" />
           <div className="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-[rgb(0,175,166)]" />
           <div className="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-[rgb(0,175,166)]" />
@@ -97,7 +105,7 @@ export default function QRScanner() {
         </div>
 
         {starting && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white text-sm backdrop-blur-sm">
+          <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 text-white text-sm backdrop-blur-sm">
             Kamera ishga tushirilmoqda...
           </div>
         )}

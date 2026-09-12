@@ -47,7 +47,20 @@ export default async function HomePage() {
         </div>
 
         {competitionInfo && (
-          <div className="mx-auto mt-14 max-w-6xl">
+          <a
+            href="#musobaqa"
+            className="mt-8 flex animate-bounce flex-col items-center gap-1 text-neutral-400 lg:hidden"
+            aria-label="Pastga qarab, musobaqa haqida o'qing"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest">Batafsil</span>
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        )}
+
+        {competitionInfo && (
+          <div id="musobaqa" className="mx-auto mt-8 max-w-6xl scroll-mt-24 lg:mt-14">
             <div className="glass rounded-3xl p-6 shadow-lg shadow-teal-900/5 sm:p-10">
               <p className="mb-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[rgb(0,145,137)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[rgb(0,175,166)]" />

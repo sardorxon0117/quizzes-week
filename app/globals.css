@@ -2,19 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  border-radius: 0 !important;
-}
-
 html, body {
   font-family: "Trebuchet MS", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: #FFFFFF;
-  color: #0A0A0A;
+  background: #fbfffe;
+  color: #0a0a0a;
 }
 
 body {
-  background-image: linear-gradient(rgba(0, 175, 166, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 175, 166, 0.045) 1px, transparent 1px);
-  background-size: 32px 32px;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Soft blurred color blobs behind everything — the "glow" that sits under the glass cards */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-blobs span {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.bg-blob-1 {
+  top: -12%;
+  left: -10%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle at 30% 30%, rgba(0, 175, 166, 0.55), rgba(0, 175, 166, 0) 70%);
+  animation: float-blob-a 22s ease-in-out infinite;
+}
+
+.bg-blob-2 {
+  top: 10%;
+  right: -14%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle at 60% 40%, rgba(255, 199, 0, 0.5), rgba(255, 199, 0, 0) 70%);
+  animation: float-blob-b 26s ease-in-out infinite;
+}
+
+.bg-blob-3 {
+  bottom: -18%;
+  left: 20%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle at 40% 60%, rgba(0, 210, 199, 0.35), rgba(0, 210, 199, 0) 70%);
+  animation: float-blob-c 30s ease-in-out infinite;
+}
+
+@keyframes float-blob-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.08); }
+}
+@keyframes float-blob-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-6%, 4%) scale(1.05); }
+}
+@keyframes float-blob-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -5%) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-blobs span { animation: none !important; }
+}
+
+/* Reusable frosted-glass surface */
+.glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.glass-dark {
+  background: rgba(10, 22, 21, 0.55);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 ::selection {
@@ -22,7 +95,7 @@ body {
   color: white;
 }
 
-input:focus, button:focus, select:focus, textarea:focus {
+input:focus, button:focus, select:focus, textarea:focus, [contenteditable]:focus {
   outline: 2px solid rgb(0, 175, 166);
   outline-offset: 2px;
 }
@@ -34,3 +107,18 @@ input:focus, button:focus, select:focus, textarea:focus {
 .scan-line {
   animation: scan-line 2.2s ease-in-out infinite;
 }
+
+/* Rendered rich text (competition info block) */
+.prose-content a {
+  color: rgb(0, 145, 137);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+.prose-content strong, .prose-content b { font-weight: 800; color: #0a0a0a; }
+.prose-content em, .prose-content i { font-style: italic; }
+.prose-content p { margin-bottom: 0.85em; }
+.prose-content p:last-child { margin-bottom: 0; }
+.prose-content ul, .prose-content ol { margin: 0.6em 0 0.85em 1.25em; }
+.prose-content ul { list-style: disc; }
+.prose-content ol { list-style: decimal; }

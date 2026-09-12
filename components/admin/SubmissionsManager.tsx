@@ -21,7 +21,7 @@ const filters = [
 ] as const;
 
 const statusStyles: Record<string, string> = {
-  PENDING: "bg-neutral-100 text-neutral-600",
+  PENDING: "bg-neutral-200/70 text-neutral-600",
   CORRECT: "bg-[rgb(0,175,166)] text-white",
   WRONG: "bg-red-100 text-red-600",
 };
@@ -62,10 +62,10 @@ export default function SubmissionsManager({ initialSubmissions }: { initialSubm
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`px-4 py-2 text-xs font-bold border-2 ${
+            className={`rounded-xl px-4 py-2 text-xs font-bold border transition-colors ${
               filter === f.key
                 ? "bg-neutral-900 text-white border-neutral-900"
-                : "border-neutral-300 text-neutral-600"
+                : "border-neutral-300 bg-white/50 text-neutral-600"
             }`}
           >
             {f.label}
@@ -74,57 +74,57 @@ export default function SubmissionsManager({ initialSubmissions }: { initialSubm
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-neutral-400 border-2 border-dashed border-neutral-200">
-          Bu bo'limda javoblar yo'q
-        </div>
+        <div className="glass rounded-3xl text-center py-20 text-neutral-400">Bu bo'limda javoblar yo'q</div>
       ) : (
-        <div className="bg-white border-2 border-neutral-900 overflow-x-auto">
-          <table className="w-full text-sm min-w-[820px]">
-            <thead>
-              <tr className="bg-neutral-900 text-white text-xs uppercase">
-                <th className="text-left px-4 py-3 font-bold">Status</th>
-                <th className="text-left px-4 py-3 font-bold">Guruh</th>
-                <th className="text-left px-4 py-3 font-bold">Savol</th>
-                <th className="text-left px-4 py-3 font-bold">Aniq javob</th>
-                <th className="text-left px-4 py-3 font-bold">Talaba javobi</th>
-                <th className="text-left px-4 py-3 font-bold">Baholash</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((s) => (
-                <tr key={s.id} className="border-t border-neutral-100 align-top">
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-2 py-1 text-[10px] font-bold ${statusStyles[s.status]}`}>
-                      {statusLabels[s.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-semibold">{s.group_name}</td>
-                  <td className="px-4 py-3 max-w-[220px]">
-                    <div className="text-[10px] text-[rgb(0,175,166)] font-bold">#{s.question_code}</div>
-                    {s.question}
-                  </td>
-                  <td className="px-4 py-3 text-neutral-500">{s.correct_answer}</td>
-                  <td className="px-4 py-3 font-medium">{s.student_answer}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1.5">
-                      <button
-                        onClick={() => review(s.id, "CORRECT")}
-                        className="px-2.5 py-1.5 text-xs font-bold border-2 border-[rgb(0,175,166)] text-[rgb(0,175,166)] hover:bg-[rgb(0,175,166)] hover:text-white"
-                      >
-                        ✓ To'g'ri
-                      </button>
-                      <button
-                        onClick={() => review(s.id, "WRONG")}
-                        className="px-2.5 py-1.5 text-xs font-bold border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                      >
-                        ✕ Noto'g'ri
-                      </button>
-                    </div>
-                  </td>
+        <div className="glass overflow-hidden rounded-3xl shadow-lg shadow-teal-900/5">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[820px]">
+              <thead>
+                <tr className="bg-neutral-900/90 text-white text-xs uppercase">
+                  <th className="text-left px-4 py-3 font-bold">Status</th>
+                  <th className="text-left px-4 py-3 font-bold">Guruh</th>
+                  <th className="text-left px-4 py-3 font-bold">Savol</th>
+                  <th className="text-left px-4 py-3 font-bold">Aniq javob</th>
+                  <th className="text-left px-4 py-3 font-bold">Talaba javobi</th>
+                  <th className="text-left px-4 py-3 font-bold">Baholash</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((s) => (
+                  <tr key={s.id} className="border-t border-neutral-200/50 align-top">
+                    <td className="px-4 py-3">
+                      <span className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[s.status]}`}>
+                        {statusLabels[s.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-semibold">{s.group_name}</td>
+                    <td className="px-4 py-3 max-w-[220px]">
+                      <div className="text-[10px] text-[rgb(0,175,166)] font-bold">#{s.question_code}</div>
+                      {s.question}
+                    </td>
+                    <td className="px-4 py-3 text-neutral-500">{s.correct_answer}</td>
+                    <td className="px-4 py-3 font-medium">{s.student_answer}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => review(s.id, "CORRECT")}
+                          className="rounded-lg px-2.5 py-1.5 text-xs font-bold border border-[rgb(0,175,166)] text-[rgb(0,175,166)] hover:bg-[rgb(0,175,166)] hover:text-white transition-colors"
+                        >
+                          ✓ To'g'ri
+                        </button>
+                        <button
+                          onClick={() => review(s.id, "WRONG")}
+                          className="rounded-lg px-2.5 py-1.5 text-xs font-bold border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                        >
+                          ✕ Noto'g'ri
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

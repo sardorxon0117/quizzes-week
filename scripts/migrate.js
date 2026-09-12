@@ -10,10 +10,17 @@ async function main() {
     ssl: { rejectUnauthorized: false },
   });
 
-  const sql = fs.readFileSync(path.join(__dirname, "../migrations/001_init.sql"), "utf8");
-  console.log("Running migration...");
-  await pool.query(sql);
-  console.log("Migration complete.");
+  const migrationsDir = path.join(__dirname, "../migrations");
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
+  for (const file of files) {
+    const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
+    console.log(`Running migration: ${file}...`);
+    await pool.query(sql);
+  }
+  console.log("Migrations complete.");
 
   const username = process.env.ADMIN_USERNAME || "admin";
   const password = process.env.ADMIN_PASSWORD || "admin123";
@@ -31,6 +38,14 @@ async function main() {
     await pool.query("INSERT INTO groups (name) VALUES ($1) ON CONFLICT (name) DO NOTHING", [g]);
   }
   console.log("Seed groups ensured.");
+
+  const defaultCompetitionInfo =
+    "<p><strong>Quizzes Week</strong> — PDP University talabalari o'rtasida o'tkaziladigan haftalik interaktiv bilim musobaqasi.</p><p>Har kuni yangi savollar joylashtiriladi, QR kodni skanerlab yoki kodni qo'lda kiritib javob yuborishingiz mumkin. Eng ko'p to'g'ri javob bergan guruh g'olib deb topiladi.</p>";
+  await pool.query(
+    "INSERT INTO settings (key, value) VALUES ('competition_info', $1) ON CONFLICT (key) DO NOTHING",
+    [defaultCompetitionInfo]
+  );
+  console.log("Default competition info ensured.");
 
   await pool.end();
 }

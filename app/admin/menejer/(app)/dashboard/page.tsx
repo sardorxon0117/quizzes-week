@@ -48,19 +48,26 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {cards.map((c) => (
-          <div key={c.label} className="bg-white border-2 border-neutral-900 p-5">
-            <div className={`text-3xl font-bold ${c.accent ? "text-[rgb(255,199,0)] bg-neutral-900 -m-5 mb-3 px-5 py-4" : "text-neutral-900"}`}>
+          <div
+            key={c.label}
+            className={`rounded-3xl p-5 shadow-lg ${
+              c.accent
+                ? "glass-dark text-white shadow-black/20"
+                : "glass shadow-teal-900/5"
+            }`}
+          >
+            <div className={`text-3xl font-black ${c.accent ? "text-[rgb(255,199,0)]" : "text-neutral-900"}`}>
               {c.value}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${c.accent ? "text-neutral-500 px-0" : "text-neutral-500"}`}>
+            <div className={`mt-1 text-xs font-semibold uppercase tracking-wide ${c.accent ? "text-neutral-300" : "text-neutral-500"}`}>
               {c.label}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white border-2 border-neutral-900">
-        <div className="px-5 py-4 border-b-2 border-neutral-900 font-bold text-sm">
+      <div className="glass overflow-hidden rounded-3xl shadow-lg shadow-teal-900/5">
+        <div className="px-5 py-4 border-b border-neutral-200/60 font-bold text-sm text-neutral-900">
           Top guruhlar
         </div>
         {topGroups.length === 0 ? (
@@ -69,7 +76,7 @@ export default async function DashboardPage() {
           <table className="w-full text-sm">
             <tbody>
               {topGroups.map((g, i) => (
-                <tr key={g.id} className="border-t border-neutral-100">
+                <tr key={g.id} className="border-t border-neutral-200/50">
                   <td className="px-5 py-3 font-bold w-10">{i + 1}</td>
                   <td className="px-5 py-3 font-semibold">{g.name}</td>
                   <td className="px-5 py-3 text-right text-neutral-500">{g.found} ta topilgan</td>

@@ -61,8 +61,10 @@ export default function CodeEntry() {
           {digits.map((d, i) => (
             <div
               key={i}
-              className={`aspect-square flex items-center justify-center border-2 text-xl sm:text-2xl font-bold ${
-                d.trim() ? "border-[rgb(0,175,166)] text-neutral-900" : "border-neutral-300 text-neutral-300"
+              className={`aspect-square flex items-center justify-center rounded-xl border-2 text-xl sm:text-2xl font-bold transition-colors ${
+                d.trim()
+                  ? "border-[rgb(0,175,166)] bg-[rgb(0,175,166)]/5 text-neutral-900"
+                  : "border-neutral-200 bg-white/50 text-neutral-300"
               }`}
             >
               {d.trim() || "0"}
@@ -76,7 +78,7 @@ export default function CodeEntry() {
       <button
         onClick={handleOpen}
         disabled={code.length !== 6 || checking}
-        className="w-full mt-5 py-3.5 font-bold text-white bg-[rgb(0,175,166)] disabled:bg-neutral-200 disabled:text-neutral-400 transition-colors"
+        className="w-full mt-5 rounded-xl py-3.5 font-bold text-white bg-[rgb(0,175,166)] shadow-md shadow-teal-900/20 transition-all active:scale-95 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none"
       >
         {checking ? "Tekshirilmoqda..." : "Savolni ochish"}
       </button>

@@ -42,10 +42,11 @@ NEXT_PUBLIC_BASE_URL=https://quizzes-week.tayyorr.uz
 npm run migrate
 ```
 
-Bu skript quyidagilarni bajaradi:
-- `questions`, `groups`, `submissions`, `admin_users` jadvallarini yaratadi;
+Bu skript `migrations/` papkasidagi barcha `.sql` fayllarni tartib bilan ishga tushiradi va quyidagilarni bajaradi:
+- `questions`, `groups`, `submissions`, `admin_users`, `settings` jadvallarini yaratadi;
 - `.env.local`dagi `ADMIN_USERNAME` / `ADMIN_PASSWORD` asosida birinchi admin foydalanuvchini yaratadi (parolni bcrypt bilan hash qilib saqlaydi);
-- Namuna sifatida 5 ta guruhni qo'shadi (FN-101, FE-102, FL-103, BE-201, MA-202) — kerak bo'lmasa admin panelidan o'chirib tashlashingiz mumkin.
+- Namuna sifatida 5 ta guruhni qo'shadi (FN-101, FE-102, FL-103, BE-201, MA-202) — kerak bo'lmasa admin panelidan o'chirib tashlashingiz mumkin;
+- "Musobaqa haqida" bo'limi uchun standart matnni qo'shadi (`settings` jadvali, `competition_info` kaliti) — buni admin panel orqali istalgan vaqt tahrirlash mumkin.
 
 Muqobil variant: Neon konsolidagi **SQL Editor**ga kirib, `migrations/001_init.sql` faylining tarkibini qo'lda ishga tushirishingiz mumkin (keyin admin foydalanuvchini alohida qo'shish kerak bo'ladi — buning uchun `npm run migrate`ni faqat shu qadam uchun ham ishlatishingiz mumkin).
 
@@ -79,15 +80,23 @@ app/
     questions/                  — Savollar CRUD + QR + PDF
     groups/                     — Guruhlar CRUD
     submissions/                — Javoblarni ko'rish va baholash
+    content/                    — "Musobaqa haqida" matnini tahrirlash (rich text)
   api/                           — Barcha REST endpointlar
 lib/
   db.ts                         — Postgres connection pool
   auth.ts                       — JWT admin sessiyasi
   guard.ts                      — Admin API himoyasi
   pdf.ts                        — A4 QR vizitka PDF generatori
-migrations/001_init.sql         — DB sxemasi
-scripts/migrate.js              — Migratsiya + admin foydalanuvchi + namuna guruhlar
+  settings.ts                   — Sayt sozlamalari (musobaqa haqida matni) + oddiy HTML sanitizatsiya
+migrations/
+  001_init.sql                  — Asosiy DB sxemasi
+  002_settings.sql               — `settings` jadvali (admin tahrirlaydigan matnlar)
+scripts/migrate.js              — Barcha migratsiyalar + admin foydalanuvchi + namuna guruhlar + standart matn
 ```
+
+## "Musobaqa haqida" bo'limi
+
+Bosh sahifadagi scanner blokidan keyin admin tahrirlay oladigan matn bloki chiqadi. Admin panelda **Musobaqa haqida** bo'limiga kirib (`/admin/menejer/content`), matnni **qalin (bold)**, *kursiv (italic)* qilishi va havolalar qo'shishi mumkin — o'zgarishlar darhol bosh sahifada ko'rinadi. Matn `settings` jadvalida (`competition_info` kaliti) saqlanadi va serverda oddiy allow-list sanitizatsiyadan o'tadi (faqat xavfsiz teglar: `b/strong`, `i/em`, `u`, `a`, `p`, `ul/ol/li`, `br`, `span`).
 
 ## Muhim eslatmalar
 

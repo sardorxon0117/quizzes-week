@@ -84,9 +84,9 @@ export default function QuestionForm({
   if (submitted) {
     return (
       <div className="text-center py-14">
-        <div className="w-14 h-14 mx-auto mb-4 bg-[rgb(0,175,166)] flex items-center justify-center">
+        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[rgb(0,175,166)] shadow-lg shadow-teal-900/30 flex items-center justify-center">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M4 12L9 17L20 6" stroke="white" strokeWidth="3" strokeLinecap="square" />
+            <path d="M4 12L9 17L20 6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
         <p className="text-lg font-bold text-neutral-900">Javob yuborildi</p>
@@ -104,7 +104,7 @@ export default function QuestionForm({
         <select
           value={groupId}
           onChange={(e) => handleGroupChange(e.target.value)}
-          className="w-full border-2 border-neutral-300 bg-white px-4 py-3 font-semibold text-neutral-900"
+          className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-semibold text-neutral-900 focus:border-[rgb(0,175,166)]"
         >
           <option value="">Guruhingizni tanlang</option>
           {groups.map((g) => (
@@ -117,7 +117,7 @@ export default function QuestionForm({
 
       {checkingGroup && <p className="text-sm font-semibold text-[rgb(0,145,137)]">Guruh holati tekshirilmoqda...</p>}
       {alreadyAnswered && (
-        <div className="border-2 border-[rgb(255,199,0)] bg-[rgb(255,248,210)] p-4" role="alert">
+        <div className="rounded-2xl border border-[rgb(255,199,0)]/50 bg-[rgb(255,199,0)]/10 p-4" role="alert">
           <p className="font-bold text-neutral-950">Bu savolga javob berib bo'lingan</p>
           <p className="mt-1 text-sm text-neutral-700">
             Bu savolga {answeredBy ? `${answeredBy} guruhi` : "boshqa guruh"} tomonidan javob berilgan.
@@ -134,7 +134,7 @@ export default function QuestionForm({
           onChange={(e) => setAnswer(e.target.value)}
           rows={3}
           placeholder="Javobingizni yozing"
-          className="w-full border-2 border-neutral-300 px-4 py-3 font-medium text-neutral-900"
+          className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-medium text-neutral-900 focus:border-[rgb(0,175,166)]"
         />
       </div>
 
@@ -143,7 +143,7 @@ export default function QuestionForm({
       <button
         onClick={handleSubmit}
         disabled={submitting || checkingGroup || alreadyAnswered}
-        className="w-full bg-[rgb(0,175,166)] py-3.5 font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500"
+        className="w-full rounded-xl bg-[rgb(0,175,166)] py-3.5 font-bold text-white shadow-md shadow-teal-900/20 transition-all active:scale-95 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500 disabled:shadow-none"
       >
         {alreadyAnswered ? "Javob yuborilgan" : submitting ? "Yuborilmoqda..." : "Javobni yuborish"}
       </button>

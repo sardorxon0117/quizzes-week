@@ -11,9 +11,8 @@ module.exports = {
       fontFamily: {
         sans: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
       },
-      borderRadius: {
-        none: "0px",
-        DEFAULT: "0px",
+      backdropBlur: {
+        xs: "2px",
       },
     },
   },

@@ -29,52 +29,58 @@ async function getRanking() {
   `);
 }
 
+const medals = ["🥇", "🥈", "🥉"];
+
 export default async function StatsPage() {
   const ranking = await getRanking();
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="flex items-center px-5 sm:px-8 py-5 border-b-2 border-[rgb(0,175,166)]">
-        <Link href="/" className="text-sm font-semibold text-[rgb(0,175,166)]">
-          ← Orqaga
-        </Link>
+      <header className="px-4 pt-4 sm:px-6 sm:pt-6">
+        <div className="glass mx-auto flex max-w-4xl items-center rounded-2xl px-5 py-3.5 shadow-lg shadow-teal-900/5">
+          <Link href="/" className="text-sm font-semibold text-[rgb(0,145,137)]">
+            ← Orqaga
+          </Link>
+        </div>
       </header>
-      <main className="flex-1 px-5 sm:px-8 py-8">
-        <h1 className="text-xl font-bold text-neutral-900 mb-1">Guruhlar reytingi</h1>
-        <p className="text-sm text-neutral-500 mb-6">Musobaqa natijalari real vaqtda yangilanadi</p>
+      <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="text-2xl font-black text-neutral-900 mb-1">Guruhlar reytingi</h1>
+          <p className="text-sm text-neutral-500 mb-6">Musobaqa natijalari real vaqtda yangilanadi</p>
 
-        <div className="overflow-x-auto border-2 border-neutral-900">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-neutral-900 text-white">
-                <th className="text-left px-4 py-3 font-bold">O'rin</th>
-                <th className="text-left px-4 py-3 font-bold">Guruh</th>
-                <th className="text-right px-4 py-3 font-bold">Topilgan</th>
-                <th className="text-right px-4 py-3 font-bold">To'g'ri</th>
-                <th className="text-right px-4 py-3 font-bold">Foiz</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranking.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-center py-8 text-neutral-400">
-                    Hozircha natijalar yo'q
-                  </td>
-                </tr>
-              )}
-              {ranking.map((r, i) => (
-                <tr key={r.id} className="border-t border-neutral-200">
-                  <td className="px-4 py-3 font-bold">
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                  </td>
-                  <td className="px-4 py-3 font-semibold">{r.name}</td>
-                  <td className="px-4 py-3 text-right">{r.found}</td>
-                  <td className="px-4 py-3 text-right font-bold text-[rgb(0,140,133)]">{r.correct}</td>
-                  <td className="px-4 py-3 text-right">{r.pct}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="glass overflow-hidden rounded-3xl shadow-lg shadow-teal-900/5">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-neutral-900/90 text-white">
+                    <th className="text-left px-5 py-3.5 font-bold">O'rin</th>
+                    <th className="text-left px-5 py-3.5 font-bold">Guruh</th>
+                    <th className="text-right px-5 py-3.5 font-bold">Topilgan</th>
+                    <th className="text-right px-5 py-3.5 font-bold">To'g'ri</th>
+                    <th className="text-right px-5 py-3.5 font-bold">Foiz</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ranking.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="text-center py-10 text-neutral-400">
+                        Hozircha natijalar yo'q
+                      </td>
+                    </tr>
+                  )}
+                  {ranking.map((r, i) => (
+                    <tr key={r.id} className="border-t border-neutral-200/60">
+                      <td className="px-5 py-3.5 font-bold">{medals[i] ?? i + 1}</td>
+                      <td className="px-5 py-3.5 font-semibold">{r.name}</td>
+                      <td className="px-5 py-3.5 text-right">{r.found}</td>
+                      <td className="px-5 py-3.5 text-right font-bold text-[rgb(0,140,133)]">{r.correct}</td>
+                      <td className="px-5 py-3.5 text-right">{r.pct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />

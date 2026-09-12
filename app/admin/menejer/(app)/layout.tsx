@@ -7,7 +7,7 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
   if (!session) redirect("/admin/menejer");
 
   return (
-    <div className="min-h-screen flex bg-neutral-50">
+    <div className="min-h-screen flex">
       <AdminSidebar username={session.username} />
       <main className="flex-1 min-w-0">{children}</main>
     </div>

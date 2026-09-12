@@ -35,10 +35,10 @@ export default async function QuestionPage({ params }: { params: { code: string 
   return (
     <div className="min-h-screen flex flex-col">
       <StudentHeader />
-      <main className="flex-1 bg-[linear-gradient(135deg,#f4fffd_0%,#ffffff_55%,#fff9dc_100%)] px-5 py-8 sm:px-10 sm:py-14">
+      <main className="flex-1 px-5 py-10 sm:px-10 sm:py-14">
         <div className="mx-auto max-w-2xl">
           {!question ? (
-            <div className="text-center py-16">
+            <div className="glass rounded-3xl py-16 text-center shadow-lg shadow-teal-900/5">
               <p className="text-lg font-bold text-neutral-900">Savol topilmadi</p>
               <p className="text-sm text-neutral-500 mt-2">Bunday savol kodi mavjud emas.</p>
               <Link href="/" className="inline-block mt-6 text-sm font-semibold text-[rgb(0,175,166)] underline">
@@ -46,7 +46,7 @@ export default async function QuestionPage({ params }: { params: { code: string 
               </Link>
             </div>
           ) : !question.is_active ? (
-            <div className="text-center py-16">
+            <div className="glass rounded-3xl py-16 text-center shadow-lg shadow-teal-900/5">
               <p className="text-lg font-bold text-neutral-900">Savol hozir mavjud emas</p>
               <p className="text-sm text-neutral-500 mt-2">Bu savol hozir faol emas.</p>
               <Link href="/" className="inline-block mt-6 text-sm font-semibold text-[rgb(0,175,166)] underline">
@@ -54,19 +54,19 @@ export default async function QuestionPage({ params }: { params: { code: string 
               </Link>
             </div>
           ) : (
-            <div className="border-2 border-neutral-950 bg-white p-5 shadow-[8px_8px_0_rgb(255,199,0)] sm:p-8">
-              <div className="mb-8 flex items-start justify-between gap-4 border-b-2 border-neutral-950 pb-5">
+            <div className="glass rounded-3xl p-5 shadow-xl shadow-teal-900/10 sm:p-8">
+              <div className="mb-8 flex items-start justify-between gap-4 border-b border-neutral-200/70 pb-5">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(0,145,137)]">Bugungi challenge</p>
                   <div className="mt-2 text-sm font-black tracking-wide text-neutral-500">#{question.code}</div>
                 </div>
-                <span className="h-4 w-4 shrink-0 bg-[rgb(0,175,166)]" />
+                <span className="h-4 w-4 shrink-0 rounded-full bg-[rgb(0,175,166)] shadow-[0_0_0_5px_rgba(0,175,166,0.15)]" />
               </div>
               <h1 className="mb-8 text-3xl font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-4xl">
                 {question.question}
               </h1>
               {submission ? (
-                <div className="border-2 border-[rgb(255,199,0)] bg-[rgb(255,248,210)] p-5" role="status">
+                <div className="rounded-2xl border border-[rgb(255,199,0)]/50 bg-[rgb(255,199,0)]/10 p-5" role="status">
                   <p className="text-lg font-black text-neutral-950">Bu savolga javob berib bo'lingan</p>
                   <p className="mt-2 text-sm leading-6 text-neutral-700">
                     Bu savolga <strong>{submission.group_name}</strong> guruhi tomonidan javob berilgan.

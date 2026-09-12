@@ -84,20 +84,20 @@ export default function QRScanner() {
 
   return (
     <div className="w-full">
-      <div className="relative w-full aspect-square max-w-sm mx-auto bg-black overflow-hidden">
+      <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-2xl bg-black shadow-inner">
         <div id="qw-qr-reader" ref={containerRef} className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
 
         {/* corner frame */}
         <div className="pointer-events-none absolute inset-6 sm:inset-8">
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[rgb(0,175,166)]" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[rgb(0,175,166)]" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[rgb(0,175,166)]" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[rgb(0,175,166)]" />
-          <div className="absolute left-0 right-0 top-0 h-0.5 bg-[rgb(255,199,0)] scan-line" />
+          <div className="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-[rgb(0,175,166)]" />
+          <div className="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-[rgb(0,175,166)]" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-[rgb(0,175,166)]" />
+          <div className="absolute bottom-0 right-0 w-8 h-8 rounded-br-xl border-b-4 border-r-4 border-[rgb(0,175,166)]" />
+          <div className="absolute left-0 right-0 top-0 h-0.5 rounded-full bg-[rgb(255,199,0)] shadow-[0_0_8px_2px_rgba(255,199,0,0.6)] scan-line" />
         </div>
 
         {starting && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white text-sm">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white text-sm backdrop-blur-sm">
             Kamera ishga tushirilmoqda...
           </div>
         )}
@@ -105,9 +105,6 @@ export default function QRScanner() {
       {error && (
         <p className="text-center text-sm text-red-600 mt-3 font-medium">{error}</p>
       )}
-      <p className="mt-3 text-center text-xs font-medium text-neutral-500">
-        QR kodni kamera ramkasi ichiga joylashtiring
-      </p>
     </div>
   );
 }

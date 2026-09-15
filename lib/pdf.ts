@@ -94,14 +94,37 @@ async function drawCard(
 
   // 3. right side — plain text, nothing else
   const rightX = frameX + frameSize + 20;
-  let cy = y + h - 22;
+  let cy = y + h - 26;
   page.drawText("PDP University", { x: rightX, y: cy, size: 7.5, font: fonts.bold, color: PRIMARY });
   cy -= 16;
   page.drawText("QUIZZES WEEK", { x: rightX, y: cy, size: 13, font: fonts.bold, color: DARK });
   cy -= 17;
   page.drawText("Skaner qiling", { x: rightX, y: cy, size: 7, font: fonts.regular, color: GRAY });
   cy -= 10;
-  page.drawText("-- yoki --", { x: rightX, y: cy, size: 6.5, font: fonts.regular, color: GRAY });
+
+  // "-- yoki --" as an actual divider (short rule / word / short rule), not literal dashes
+  const yokiText = "yoki";
+  const yokiSize = 6.5;
+  const yokiWidth = fonts.regular.widthOfTextAtSize(yokiText, yokiSize);
+  const colRight = x + w - 16;
+  const yokiX = rightX + (colRight - rightX - yokiWidth) / 2;
+  const dividerLineY = cy + yokiSize * 0.32;
+  const dividerGap = 6;
+  page.drawLine({
+    start: { x: rightX, y: dividerLineY },
+    end: { x: yokiX - dividerGap, y: dividerLineY },
+    thickness: 0.6,
+    color: GRAY,
+    opacity: 0.45,
+  });
+  page.drawText(yokiText, { x: yokiX, y: cy, size: yokiSize, font: fonts.regular, color: GRAY });
+  page.drawLine({
+    start: { x: yokiX + yokiWidth + dividerGap, y: dividerLineY },
+    end: { x: colRight, y: dividerLineY },
+    thickness: 0.6,
+    color: GRAY,
+    opacity: 0.45,
+  });
   cy -= 10;
   const siteHost = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
   page.drawText(siteHost, { x: rightX, y: cy, size: 7, font: fonts.bold, color: PRIMARY });

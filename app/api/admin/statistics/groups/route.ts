@@ -19,7 +19,7 @@ export async function GET() {
     LEFT JOIN submissions s ON s.group_id = g.id
     WHERE g.is_active = TRUE
     GROUP BY g.id, g.name
-    ORDER BY correct DESC, pct DESC, g.name ASC
+    ORDER BY correct DESC, found DESC, g.name ASC
   `);
 
   return NextResponse.json(ranking);

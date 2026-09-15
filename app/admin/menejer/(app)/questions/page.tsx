@@ -3,9 +3,21 @@ import { query } from "@/lib/db";
 import QuestionsManager from "@/components/admin/QuestionsManager";
 
 async function getQuestions() {
-  return query(
-    `SELECT id, code, question, answer, is_active, created_at, updated_at FROM questions ORDER BY created_at DESC`
-  );
+  return query(`
+    SELECT
+      q.id, q.code, q.question, q.answer, q.is_active, q.created_at, q.updated_at,
+      sub.group_name AS answered_by, sub.status AS submission_status
+    FROM questions q
+    LEFT JOIN LATERAL (
+      SELECT g.name AS group_name, s.status, s.submitted_at
+      FROM submissions s
+      JOIN groups g ON g.id = s.group_id
+      WHERE s.question_id = q.id
+      ORDER BY s.submitted_at ASC
+      LIMIT 1
+    ) sub ON true
+    ORDER BY q.created_at DESC
+  `);
 }
 
 export default async function QuestionsPage() {

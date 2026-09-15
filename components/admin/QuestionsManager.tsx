@@ -10,6 +10,20 @@ type Question = {
   answer: string;
   is_active: boolean;
   created_at: string;
+  answered_by?: string | null;
+  submission_status?: "PENDING" | "CORRECT" | "WRONG" | null;
+};
+
+const submissionStatusStyles: Record<string, string> = {
+  PENDING: "bg-neutral-200/70 text-neutral-600",
+  CORRECT: "bg-[rgb(0,175,166)] text-white",
+  WRONG: "bg-red-100 text-red-600",
+};
+
+const submissionStatusLabels: Record<string, string> = {
+  PENDING: "tekshirilmoqda",
+  CORRECT: "to'g'ri",
+  WRONG: "noto'g'ri",
 };
 
 export default function QuestionsManager({ initialQuestions }: { initialQuestions: Question[] }) {
@@ -157,9 +171,24 @@ export default function QuestionsManager({ initialQuestions }: { initialQuestion
                 <img src={qrMap[q.code]} alt={`QR ${q.code}`} className="w-24 h-24 mx-auto mb-3 rounded-xl bg-white p-1.5" />
               )}
               <p className="text-sm font-semibold text-neutral-900 mb-1 line-clamp-3">{q.question}</p>
-              <p className="text-xs text-neutral-500 mb-4">
+              <p className="text-xs text-neutral-500 mb-3">
                 To'g'ri javob: <span className="font-semibold text-neutral-700">{q.answer}</span>
               </p>
+              <div className="mb-4">
+                {q.answered_by ? (
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                      submissionStatusStyles[q.submission_status ?? "PENDING"]
+                    }`}
+                  >
+                    {q.answered_by} · {submissionStatusLabels[q.submission_status ?? "PENDING"]}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-neutral-200/60 px-2.5 py-1 text-[10px] font-bold text-neutral-500">
+                    Javob berilmagan
+                  </span>
+                )}
+              </div>
               <div className="mt-auto flex flex-wrap gap-1.5 pt-3 border-t border-neutral-200/60">
                 <button
                   onClick={() => handlePdf(q)}

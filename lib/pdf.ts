@@ -20,7 +20,8 @@ const MM_TO_PT = 2.834645669;
 const PAGE_W = 210 * MM_TO_PT;
 const PAGE_H = 297 * MM_TO_PT;
 const MARGIN = 18 * MM_TO_PT * 0.9; // ~16mm
-const GUTTER = 4 * MM_TO_PT;
+const CUT_OFFSET = 5 * MM_TO_PT; // 0.5cm cut-line clearance on every side of each card
+const GUTTER = CUT_OFFSET * 2; // so two neighboring cards' cut lines meet exactly, never crossing into either card
 const COLS = 2;
 const ROWS = 5;
 const CARD_W = (PAGE_W - MARGIN * 2 - GUTTER * (COLS - 1)) / COLS;
@@ -121,21 +122,22 @@ async function drawCard(
 
 const CUT_LINE_COLOR = rgb(0.6, 0.6, 0.6);
 
-/** Dashed cut/trim guides running through the middle of each gutter, edge
- * to edge across the sheet — for lining up scissors or a paper cutter once
- * printed, same as press-shop crop marks. */
-function drawCutLines(page: PDFPage) {
-  const dashOpts = { color: CUT_LINE_COLOR, thickness: 0.6, dashArray: [4, 3], opacity: 0.8 };
-
-  for (let col = 1; col < COLS; col++) {
-    const cx = MARGIN + col * CARD_W + (col - 0.5) * GUTTER;
-    page.drawLine({ start: { x: cx, y: 0 }, end: { x: cx, y: PAGE_H }, ...dashOpts });
-  }
-
-  for (let row = 1; row < ROWS; row++) {
-    const cy = PAGE_H - MARGIN - row * CARD_H - (row - 0.5) * GUTTER;
-    page.drawLine({ start: { x: 0, y: cy }, end: { x: PAGE_W, y: cy }, ...dashOpts });
-  }
+/** A dashed cut/trim outline on all 4 sides of one card, offset outward by
+ * CUT_OFFSET (0.5cm) — for lining up scissors or a paper cutter once
+ * printed, same as press-shop crop marks. GUTTER is exactly 2×CUT_OFFSET,
+ * so two neighboring cards' outlines land on the very same line in the
+ * shared gutter instead of overlapping past each other into the cards. */
+function drawCardCutOutline(page: PDFPage, x: number, y: number, w: number, h: number) {
+  page.drawRectangle({
+    x: x - CUT_OFFSET,
+    y: y - CUT_OFFSET,
+    width: w + CUT_OFFSET * 2,
+    height: h + CUT_OFFSET * 2,
+    borderColor: CUT_LINE_COLOR,
+    borderWidth: 0.6,
+    borderDashArray: [4, 3],
+    borderOpacity: 0.8,
+  });
 }
 
 export async function generateCardsPdf(items: CardItem[], baseUrl: string): Promise<Uint8Array> {
@@ -162,9 +164,8 @@ export async function generateCardsPdf(items: CardItem[], baseUrl: string): Prom
       const y = yTop - CARD_H;
 
       await drawCard(page, x, y, pageItems[i], baseUrl, fonts, qrCache, pdfDoc);
+      drawCardCutOutline(page, x, y, CARD_W, CARD_H);
     }
-
-    drawCutLines(page);
   }
 
   return pdfDoc.save();

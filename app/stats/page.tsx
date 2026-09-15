@@ -29,57 +29,95 @@ async function getRanking() {
   `);
 }
 
-const medals = ["🥇", "🥈", "🥉"];
+const RANK_STYLES = [
+  { badge: "bg-[rgb(255,199,0)] text-neutral-950", ring: "ring-2 ring-[rgb(255,199,0)]/60", medal: "🥇" },
+  { badge: "bg-neutral-300 text-neutral-900", ring: "ring-2 ring-neutral-300/60", medal: "🥈" },
+  { badge: "bg-[rgb(205,140,90)] text-white", ring: "ring-2 ring-[rgb(205,140,90)]/50", medal: "🥉" },
+];
 
 export default async function StatsPage() {
   const ranking = await getRanking();
+  const totalCorrect = ranking.reduce((sum, r) => sum + r.correct, 0);
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="px-4 pt-4 sm:px-6 sm:pt-6">
-        <div className="glass mx-auto flex max-w-4xl items-center rounded-2xl px-5 py-3.5 shadow-lg shadow-teal-900/5">
-          <Link href="/" className="text-sm font-semibold text-[rgb(0,145,137)]">
-            ← Orqaga
+        <div className="glass mx-auto flex max-w-2xl items-center rounded-2xl px-5 py-3.5 shadow-lg shadow-teal-900/5">
+          <Link href="/" className="flex items-center gap-1.5 text-sm font-semibold text-[rgb(0,145,137)]">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Orqaga
           </Link>
         </div>
       </header>
-      <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-2xl font-black text-neutral-900 mb-1">Guruhlar reytingi</h1>
-          <p className="text-sm text-neutral-500 mb-6">Musobaqa natijalari real vaqtda yangilanadi</p>
 
-          <div className="glass overflow-hidden rounded-3xl shadow-lg shadow-teal-900/5">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-neutral-900/90 text-white">
-                    <th className="text-left px-5 py-3.5 font-bold">O'rin</th>
-                    <th className="text-left px-5 py-3.5 font-bold">Guruh</th>
-                    <th className="text-right px-5 py-3.5 font-bold">Topilgan</th>
-                    <th className="text-right px-5 py-3.5 font-bold">To'g'ri</th>
-                    <th className="text-right px-5 py-3.5 font-bold">Foiz</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ranking.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="text-center py-10 text-neutral-400">
-                        Hozircha natijalar yo'q
-                      </td>
-                    </tr>
-                  )}
-                  {ranking.map((r, i) => (
-                    <tr key={r.id} className="border-t border-neutral-200/60">
-                      <td className="px-5 py-3.5 font-bold">{medals[i] ?? i + 1}</td>
-                      <td className="px-5 py-3.5 font-semibold">{r.name}</td>
-                      <td className="px-5 py-3.5 text-right">{r.found}</td>
-                      <td className="px-5 py-3.5 text-right font-bold text-[rgb(0,140,133)]">{r.correct}</td>
-                      <td className="px-5 py-3.5 text-right">{r.pct}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-2xl">
+          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[rgb(0,145,137)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[rgb(0,175,166)]" />
+            Musobaqa
+          </p>
+          <h1 className="mt-2 text-2xl font-black tracking-[-0.02em] text-neutral-950 sm:text-3xl">Guruhlar reytingi</h1>
+          <p className="mt-1 text-sm text-neutral-500">Natijalar real vaqtda yangilanadi</p>
+
+          <div className="glass mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl shadow-lg shadow-teal-900/5 sm:grid-cols-3">
+            <div className="bg-white/40 px-4 py-3.5 text-center">
+              <strong className="block text-xl font-black text-neutral-950">{ranking.length}</strong>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-neutral-500">Guruh</span>
             </div>
+            <div className="bg-white/40 px-4 py-3.5 text-center">
+              <strong className="block text-xl font-black text-[rgb(0,140,133)]">{totalCorrect}</strong>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-neutral-500">To'g'ri javob</span>
+            </div>
+            <div className="col-span-2 bg-white/40 px-4 py-3.5 text-center sm:col-span-1">
+              <strong className="block text-xl font-black text-neutral-950">{ranking[0]?.name ?? "—"}</strong>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-neutral-500">Yetakchi</span>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-2.5">
+            {ranking.length === 0 && (
+              <div className="glass rounded-2xl py-14 text-center text-sm text-neutral-400 shadow-lg shadow-teal-900/5">
+                Hozircha natijalar yo'q
+              </div>
+            )}
+
+            {ranking.map((r, i) => {
+              const style = RANK_STYLES[i];
+              return (
+                <div
+                  key={r.id}
+                  className={`glass flex items-center gap-3 rounded-2xl p-3.5 shadow-lg shadow-teal-900/5 sm:gap-4 sm:p-4 ${style?.ring ?? ""}`}
+                >
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-black sm:h-10 sm:w-10 ${
+                      style ? style.badge : "bg-neutral-900/5 text-neutral-500"
+                    }`}
+                  >
+                    {style ? style.medal : i + 1}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-neutral-950 sm:text-base">{r.name}</p>
+                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-900/8">
+                      <div
+                        className="h-full rounded-full bg-[rgb(0,175,166)]"
+                        style={{ width: `${Math.min(r.pct, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-right">
+                    <p className="text-base font-black text-[rgb(0,140,133)] sm:text-lg">
+                      {r.correct}
+                      <span className="text-xs font-semibold text-neutral-400">/{r.found}</span>
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-400">{r.pct}%</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>

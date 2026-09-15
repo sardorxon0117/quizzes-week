@@ -20,7 +20,7 @@ const MM_TO_PT = 2.834645669;
 const PAGE_W = 210 * MM_TO_PT;
 const PAGE_H = 297 * MM_TO_PT;
 const MARGIN = 18 * MM_TO_PT * 0.9; // ~16mm
-const CUT_OFFSET = 5 * MM_TO_PT; // 0.5cm cut-line clearance on every side of each card
+const CUT_OFFSET = 2 * MM_TO_PT; // 0.2cm cut-line clearance on every side of each card
 const GUTTER = CUT_OFFSET * 2; // so two neighboring cards' cut lines meet exactly, never crossing into either card
 const COLS = 2;
 const ROWS = 5;
@@ -123,7 +123,7 @@ async function drawCard(
 const CUT_LINE_COLOR = rgb(0.6, 0.6, 0.6);
 
 /** A dashed cut/trim outline on all 4 sides of one card, offset outward by
- * CUT_OFFSET (0.5cm) — for lining up scissors or a paper cutter once
+ * CUT_OFFSET (0.2cm) — for lining up scissors or a paper cutter once
  * printed, same as press-shop crop marks. GUTTER is exactly 2×CUT_OFFSET,
  * so two neighboring cards' outlines land on the very same line in the
  * shared gutter instead of overlapping past each other into the cards. */

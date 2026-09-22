@@ -167,11 +167,32 @@ export default function QuestionForm({
               </option>
             ))}
           </select>
-          {!loadingStudents && students.length === 0 && (
-            <p className="mt-2 text-xs text-neutral-500">
-              Bu guruhda talabalar ro'yxati topilmadi. Menejerga murojaat qiling.
-            </p>
-          )}
+          {!loadingStudents &&
+            (students.length === 0 ? (
+              <div className="mt-2 rounded-xl border border-red-200 bg-red-50 p-3">
+                <p className="text-xs font-bold text-red-600">Bu guruhda talaba mavjud emas.</p>
+                <a
+                  href="https://t.me/sardorxon_me"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                >
+                  Menejerga murojaat qilish
+                </a>
+              </div>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-neutral-400">
+                <span>Ro'yxatda ismingiz yo'qmi?</span>
+                <a
+                  href="https://t.me/sardorxon_me"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[rgb(0,145,137)] underline underline-offset-2"
+                >
+                  Menejerga murojaat qiling
+                </a>
+              </div>
+            ))}
         </div>
       )}
 

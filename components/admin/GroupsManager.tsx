@@ -8,6 +8,7 @@ type Group = {
   is_active: boolean;
   found: number;
   correct: number;
+  student_count: number;
 };
 
 export default function GroupsManager({ initialGroups }: { initialGroups: Group[] }) {
@@ -58,7 +59,9 @@ export default function GroupsManager({ initialGroups }: { initialGroups: Group[
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        setGroups((prev) => [...prev, { ...data, found: 0, correct: 0 }].sort((a, b) => a.name.localeCompare(b.name)));
+        setGroups((prev) =>
+          [...prev, { ...data, found: 0, correct: 0, student_count: 0 }].sort((a, b) => a.name.localeCompare(b.name))
+        );
       }
       setShowForm(false);
     } catch (e: any) {
@@ -109,7 +112,10 @@ export default function GroupsManager({ initialGroups }: { initialGroups: Group[
                   </span>
                 )}
               </div>
-              <p className="text-xs text-neutral-500 mb-4">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(0,175,166)]/10 px-2.5 py-0.5 text-[10px] font-bold text-[rgb(0,145,137)]">
+                🎓 {g.student_count} talaba
+              </span>
+              <p className="text-xs text-neutral-500 mt-2 mb-4">
                 {g.correct} to'g'ri / {g.found} topilgan
               </p>
               <div className="flex gap-1.5">

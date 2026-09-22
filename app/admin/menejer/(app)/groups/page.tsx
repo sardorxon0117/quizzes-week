@@ -6,7 +6,8 @@ async function getGroups() {
   return query(`
     SELECT g.id, g.name, g.is_active,
       COUNT(s.id)::int AS found,
-      COUNT(s.id) FILTER (WHERE s.status = 'CORRECT')::int AS correct
+      COUNT(s.id) FILTER (WHERE s.status = 'CORRECT')::int AS correct,
+      (SELECT COUNT(*)::int FROM students st WHERE st.group_id = g.id AND st.is_active = TRUE) AS student_count
     FROM groups g
     LEFT JOIN submissions s ON s.group_id = g.id
     GROUP BY g.id

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Group = { id: number; name: string };
+type Student = { id: number; full_name: string };
 
 export default function QuestionForm({
   questionId,
@@ -14,6 +15,9 @@ export default function QuestionForm({
 }) {
   const router = useRouter();
   const [groupId, setGroupId] = useState<string>("");
+  const [studentId, setStudentId] = useState<string>("");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [checkingGroup, setCheckingGroup] = useState(false);
@@ -24,22 +28,33 @@ export default function QuestionForm({
 
   async function handleGroupChange(value: string) {
     setGroupId(value);
+    setStudentId("");
+    setStudents([]);
     setError(null);
     setAlreadyAnswered(false);
     setAnsweredBy(null);
     if (!value) return;
 
     setCheckingGroup(true);
+    setLoadingStudents(true);
     try {
-      const res = await fetch(`/api/submissions?questionId=${questionId}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error);
-      setAlreadyAnswered(Boolean(data.answered));
-      setAnsweredBy(data.submission?.group_name || null);
+      const [subRes, studentsRes] = await Promise.all([
+        fetch(`/api/submissions?questionId=${questionId}`),
+        fetch(`/api/students?groupId=${value}`),
+      ]);
+      const subData = await subRes.json();
+      if (!subRes.ok) throw new Error(subData?.error);
+      setAlreadyAnswered(Boolean(subData.answered));
+      setAnsweredBy(subData.submission?.group_name || null);
+
+      if (studentsRes.ok) {
+        setStudents(await studentsRes.json());
+      }
     } catch {
       setError("Guruh holatini tekshirib bo'lmadi. Qaytadan urinib ko'ring.");
     } finally {
       setCheckingGroup(false);
+      setLoadingStudents(false);
     }
   }
 
@@ -50,6 +65,10 @@ export default function QuestionForm({
       return;
     }
     if (alreadyAnswered) return;
+    if (!studentId) {
+      setError("Iltimos, o'zingizni talabalar ro'yxatidan tanlang.");
+      return;
+    }
     if (!answer.trim()) {
       setError("Javobni kiriting.");
       return;
@@ -59,7 +78,12 @@ export default function QuestionForm({
       const res = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId, groupId: Number(groupId), answer: answer.trim() }),
+        body: JSON.stringify({
+          questionId,
+          groupId: Number(groupId),
+          studentId: Number(studentId),
+          answer: answer.trim(),
+        }),
       });
       const data = await res.json();
       if (res.status === 409) {
@@ -122,6 +146,32 @@ export default function QuestionForm({
           <p className="mt-1 text-sm text-neutral-700">
             Bu savolga {answeredBy ? `${answeredBy} guruhi` : "boshqa guruh"} tomonidan javob berilgan.
           </p>
+        </div>
+      )}
+
+      {groupId && !alreadyAnswered && (
+        <div>
+          <label className="block text-xs font-bold text-neutral-500 mb-2 uppercase tracking-wide">
+            O'zingizni tanlang
+          </label>
+          <select
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+            disabled={loadingStudents}
+            className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-semibold text-neutral-900 focus:border-[rgb(0,175,166)] disabled:opacity-60"
+          >
+            <option value="">{loadingStudents ? "Yuklanmoqda..." : "Ismingizni tanlang"}</option>
+            {students.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.full_name}
+              </option>
+            ))}
+          </select>
+          {!loadingStudents && students.length === 0 && (
+            <p className="mt-2 text-xs text-neutral-500">
+              Bu guruhda talabalar ro'yxati topilmadi. Menejerga murojaat qiling.
+            </p>
+          )}
         </div>
       )}
 

@@ -9,10 +9,12 @@ export default function StatsLoading() {
       <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10">
         <div className="mx-auto max-w-2xl">
           <div className="skeleton h-3 w-24 rounded-full" />
-          <div className="skeleton mt-3 h-7 w-56 rounded-full" />
+          <div className="skeleton mt-3 h-7 w-40 rounded-full" />
           <div className="skeleton mt-2 h-4 w-64 rounded-full" />
 
-          <div className="glass mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-2xl shadow-lg shadow-teal-900/5">
+          <div className="skeleton mt-6 h-10 w-52 rounded-xl" />
+
+          <div className="glass mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-2xl shadow-lg shadow-teal-900/5">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-white/40 px-4 py-4 text-center">
                 <div className="skeleton mx-auto h-5 w-10 rounded-full" />

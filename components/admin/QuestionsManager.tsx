@@ -11,6 +11,7 @@ type Question = {
   is_active: boolean;
   created_at: string;
   answered_by?: string | null;
+  student_name?: string | null;
   submission_status?: "PENDING" | "CORRECT" | "WRONG" | null;
 };
 
@@ -181,7 +182,8 @@ export default function QuestionsManager({ initialQuestions }: { initialQuestion
                       submissionStatusStyles[q.submission_status ?? "PENDING"]
                     }`}
                   >
-                    {q.answered_by} · {submissionStatusLabels[q.submission_status ?? "PENDING"]}
+                    {q.answered_by}
+                    {q.student_name ? ` (${q.student_name})` : ""} · {submissionStatusLabels[q.submission_status ?? "PENDING"]}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-full bg-neutral-200/60 px-2.5 py-1 text-[10px] font-bold text-neutral-500">

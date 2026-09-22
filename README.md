@@ -79,6 +79,7 @@ app/
     dashboard/                  — Statistik kartalar
     questions/                  — Savollar CRUD + QR + PDF
     groups/                     — Guruhlar CRUD
+    students/                   — Talabalar CRUD + Excel/CSV orqali ommaviy yuklash
     submissions/                — Javoblarni ko'rish va baholash
     content/                    — "Musobaqa haqida" matnini tahrirlash (rich text)
   api/                           — Barcha REST endpointlar
@@ -88,15 +89,26 @@ lib/
   guard.ts                      — Admin API himoyasi
   pdf.ts                        — A4 QR vizitka PDF generatori
   settings.ts                   — Sayt sozlamalari (musobaqa haqida matni) + oddiy HTML sanitizatsiya
+  parseStudentsWorkbook.ts      — Talabalar Excel/CSV faylini o'qish
 migrations/
   001_init.sql                  — Asosiy DB sxemasi
   002_settings.sql               — `settings` jadvali (admin tahrirlaydigan matnlar)
+  003_students.sql              — `students` jadvali + `submissions.student_id`
 scripts/migrate.js              — Barcha migratsiyalar + admin foydalanuvchi + namuna guruhlar + standart matn
 ```
 
 ## "Musobaqa haqida" bo'limi
 
 Bosh sahifadagi scanner blokidan keyin admin tahrirlay oladigan matn bloki chiqadi. Admin panelda **Musobaqa haqida** bo'limiga kirib (`/admin/menejer/content`), matnni **qalin (bold)**, *kursiv (italic)* qilishi va havolalar qo'shishi mumkin — o'zgarishlar darhol bosh sahifada ko'rinadi. Matn `settings` jadvalida (`competition_info` kaliti) saqlanadi va serverda oddiy allow-list sanitizatsiyadan o'tadi (faqat xavfsiz teglar: `b/strong`, `i/em`, `u`, `a`, `p`, `ul/ol/li`, `br`, `span`).
+
+## Talabalar va shaxsiy reyting
+
+Musobaqa endi nafaqat guruhlar, balki **talabalar** o'rtasida ham boradi. Savolga javob berishda talaba avval guruhini, so'ng aynan o'zini (guruh bo'yicha filtrlangan ro'yxatdan) tanlaydi — shu orqali har bir javob muayyan talabaga bog'lanadi.
+
+- Admin panelda **Talabalar** bo'limi (`/admin/menejer/students`): talabalarni birma-bir qo'shish (ism familiya, ID, guruh — guruh nomlar ro'yxatidan tanlanadi) yoki **"Ro'yxatni yuklash"** tugmasi orqali Excel/CSV fayl bilan ommaviy yuklash mumkin.
+  - Fayl ustunlari: **1-ustun** — ism familiya, **2-ustun** — guruh nomi (mavjud guruh nomi bilan bir xil bo'lishi shart), **3-ustun** — talaba ID. Birinchi qator sarlavha deb hisoblanadi va e'tiborga olinmaydi.
+  - Talaba ID bo'yicha qayta yuklansa, mavjud talaba yangilanadi (ism/guruh); guruh nomi topilmasa, o'sha qator xatolik sifatida qaytariladi (avval guruhni yarating).
+- `/stats` sahifasida endi **Guruhlar** va **Talabalar** deb ikkita bo'lim (tab) bor — ikkalasida ham reyting bir xil qoidada: to'g'ri javoblar soni bo'yicha, teng bo'lsa ko'proq javob bergan ustunroq turadi (foiz faqat ma'lumot sifatida ko'rsatiladi, saralashga ta'sir qilmaydi).
 
 ## Muhim eslatmalar
 

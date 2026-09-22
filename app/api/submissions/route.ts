@@ -9,9 +9,10 @@ export async function GET(req: NextRequest) {
   }
 
   const submission = await queryOne(
-    `SELECT s.id, s.status, s.submitted_at, g.name AS group_name
+    `SELECT s.id, s.status, s.submitted_at, g.name AS group_name, st.full_name AS student_name
      FROM submissions s
      JOIN groups g ON g.id = s.group_id
+     LEFT JOIN students st ON st.id = s.student_id
      WHERE s.question_id = $1
      ORDER BY s.submitted_at ASC
      LIMIT 1`,
@@ -29,10 +30,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Noto'g'ri so'rov" }, { status: 400 });
   }
 
-  const { questionId, groupId, answer } = body || {};
+  const { questionId, groupId, studentId, answer } = body || {};
 
   if (!questionId || !groupId) {
     return NextResponse.json({ error: "Iltimos, guruhingizni tanlang." }, { status: 400 });
+  }
+  if (!studentId) {
+    return NextResponse.json({ error: "Iltimos, o'zingizni talabalar ro'yxatidan tanlang." }, { status: 400 });
   }
   if (!answer || !String(answer).trim()) {
     return NextResponse.json({ error: "Javobni kiriting." }, { status: 400 });
@@ -49,6 +53,14 @@ export async function POST(req: NextRequest) {
       const group = await client.query(`SELECT id FROM groups WHERE id = $1 AND is_active = TRUE`, [groupId]);
       if (group.rowCount === 0) return { error: "Guruh topilmadi", status: 404 };
 
+      const student = await client.query(
+        `SELECT id FROM students WHERE id = $1 AND group_id = $2 AND is_active = TRUE`,
+        [studentId, groupId]
+      );
+      if (student.rowCount === 0) {
+        return { error: "Talaba tanlangan guruhda topilmadi. Qaytadan tanlang.", status: 404 };
+      }
+
       const existing = await client.query(
         `SELECT g.name AS group_name FROM submissions s JOIN groups g ON g.id = s.group_id
          WHERE s.question_id = $1 ORDER BY s.submitted_at ASC LIMIT 1`,
@@ -63,9 +75,9 @@ export async function POST(req: NextRequest) {
       }
 
       const inserted = await client.query(
-        `INSERT INTO submissions (question_id, group_id, student_answer, status)
-         VALUES ($1, $2, $3, 'PENDING') RETURNING id, status, submitted_at`,
-        [questionId, groupId, String(answer).trim()]
+        `INSERT INTO submissions (question_id, group_id, student_id, student_answer, status)
+         VALUES ($1, $2, $3, $4, 'PENDING') RETURNING id, status, submitted_at`,
+        [questionId, groupId, studentId, String(answer).trim()]
       );
       return { data: inserted.rows[0], status: 201 };
     });

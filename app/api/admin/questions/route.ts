@@ -8,9 +8,22 @@ export async function GET() {
   const denied = requireAdmin();
   if (denied) return denied;
 
-  const questions = await query(
-    `SELECT id, code, question, answer, is_active, created_at, updated_at FROM questions ORDER BY created_at DESC`
-  );
+  const questions = await query(`
+    SELECT
+      q.id, q.code, q.question, q.answer, q.is_active, q.created_at, q.updated_at,
+      sub.group_name AS answered_by, sub.student_name, sub.status AS submission_status
+    FROM questions q
+    LEFT JOIN LATERAL (
+      SELECT g.name AS group_name, st.full_name AS student_name, s.status, s.submitted_at
+      FROM submissions s
+      JOIN groups g ON g.id = s.group_id
+      LEFT JOIN students st ON st.id = s.student_id
+      WHERE s.question_id = q.id
+      ORDER BY s.submitted_at ASC
+      LIMIT 1
+    ) sub ON true
+    ORDER BY q.created_at DESC
+  `);
   return NextResponse.json(questions);
 }
 

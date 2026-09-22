@@ -11,6 +11,7 @@ type Submission = {
   question: string;
   correct_answer: string;
   group_name: string;
+  student_name: string | null;
 };
 
 const filters = [
@@ -97,7 +98,10 @@ export default function SubmissionsManager({ initialSubmissions }: { initialSubm
                         {statusLabels[s.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-semibold">{s.group_name}</td>
+                    <td className="px-4 py-3">
+                      <div className="font-semibold">{s.group_name}</div>
+                      {s.student_name && <div className="text-xs text-neutral-500">{s.student_name}</div>}
+                    </td>
                     <td className="px-4 py-3 max-w-[220px]">
                       <div className="text-[10px] text-[rgb(0,175,166)] font-bold">#{s.question_code}</div>
                       {s.question}

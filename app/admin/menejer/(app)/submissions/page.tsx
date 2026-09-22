@@ -6,10 +6,11 @@ async function getSubmissions() {
   return query(`
     SELECT s.id, s.status, s.student_answer, s.submitted_at,
            q.code AS question_code, q.question, q.answer AS correct_answer,
-           g.name AS group_name
+           g.name AS group_name, st.full_name AS student_name
     FROM submissions s
     JOIN questions q ON q.id = s.question_id
     JOIN groups g ON g.id = s.group_id
+    LEFT JOIN students st ON st.id = s.student_id
     ORDER BY s.submitted_at DESC
   `);
 }

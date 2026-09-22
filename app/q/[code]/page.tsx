@@ -19,9 +19,11 @@ async function getGroups() {
 }
 
 async function getSubmission(questionId: number) {
-  return queryOne<{ group_name: string; submitted_at: string }>(
-    `SELECT g.name AS group_name, s.submitted_at
-     FROM submissions s JOIN groups g ON g.id = s.group_id
+  return queryOne<{ group_name: string; student_name: string | null; submitted_at: string }>(
+    `SELECT g.name AS group_name, st.full_name AS student_name, s.submitted_at
+     FROM submissions s
+     JOIN groups g ON g.id = s.group_id
+     LEFT JOIN students st ON st.id = s.student_id
      WHERE s.question_id = $1 ORDER BY s.submitted_at ASC LIMIT 1`,
     [questionId]
   );
@@ -69,7 +71,14 @@ export default async function QuestionPage({ params }: { params: { code: string 
                 <div className="rounded-2xl border border-[rgb(255,199,0)]/50 bg-[rgb(255,199,0)]/10 p-5" role="status">
                   <p className="text-lg font-black text-neutral-950">Bu savolga javob berib bo'lingan</p>
                   <p className="mt-2 text-sm leading-6 text-neutral-700">
-                    Bu savolga <strong>{submission.group_name}</strong> guruhi tomonidan javob berilgan.
+                    Bu savolga <strong>{submission.group_name}</strong> guruhi
+                    {submission.student_name ? (
+                      <>
+                        {" "}
+                        (<strong>{submission.student_name}</strong>)
+                      </>
+                    ) : null}{" "}
+                    tomonidan javob berilgan.
                   </p>
                 </div>
               ) : (

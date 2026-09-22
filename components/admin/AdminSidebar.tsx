@@ -7,6 +7,7 @@ const links = [
   { href: "/admin/menejer/dashboard", label: "Dashboard", icon: "▦" },
   { href: "/admin/menejer/questions", label: "Savollar", icon: "❓" },
   { href: "/admin/menejer/groups", label: "Guruhlar", icon: "👥" },
+  { href: "/admin/menejer/students", label: "Talabalar", icon: "🎓" },
   { href: "/admin/menejer/submissions", label: "So'rovlar", icon: "📥" },
   { href: "/admin/menejer/content", label: "Musobaqa haqida", icon: "📝" },
 ];

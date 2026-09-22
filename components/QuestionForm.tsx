@@ -163,7 +163,7 @@ export default function QuestionForm({
             <div className="rounded-xl border border-red-200 bg-red-50 p-3">
               <p className="text-xs font-bold text-red-600">Bu guruhda talaba mavjud emas.</p>
               <a
-                href="https://t.me/sardorxon_me"
+                href="https://t.me/sardorkhon_me"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
@@ -188,7 +188,7 @@ export default function QuestionForm({
               <div className="mt-2 rounded-xl border border-[rgb(0,175,166)]/30 bg-[rgb(0,175,166)]/10 p-3">
                 <p className="text-xs font-bold text-[rgb(0,145,137)]">Ro'yxatda ismingiz yo'qmi?</p>
                 <a
-                  href="https://t.me/sardorxon_me"
+                  href="https://t.me/sardorkhon_me"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[rgb(0,175,166)] px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"

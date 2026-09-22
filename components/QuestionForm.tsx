@@ -154,45 +154,50 @@ export default function QuestionForm({
           <label className="block text-xs font-bold text-neutral-500 mb-2 uppercase tracking-wide">
             O'zingizni tanlang
           </label>
-          <select
-            value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
-            disabled={loadingStudents}
-            className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-semibold text-neutral-900 focus:border-[rgb(0,175,166)] disabled:opacity-60"
-          >
-            <option value="">{loadingStudents ? "Yuklanmoqda..." : "Ismingizni tanlang"}</option>
-            {students.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.full_name}
-              </option>
-            ))}
-          </select>
-          {!loadingStudents &&
-            (students.length === 0 ? (
-              <div className="mt-2 rounded-xl border border-red-200 bg-red-50 p-3">
-                <p className="text-xs font-bold text-red-600">Bu guruhda talaba mavjud emas.</p>
+
+          {loadingStudents ? (
+            <select disabled className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-semibold text-neutral-400">
+              <option>Yuklanmoqda...</option>
+            </select>
+          ) : students.length === 0 ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3">
+              <p className="text-xs font-bold text-red-600">Bu guruhda talaba mavjud emas.</p>
+              <a
+                href="https://t.me/sardorxon_me"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+              >
+                Menejerga murojaat qilish
+              </a>
+            </div>
+          ) : (
+            <>
+              <select
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                className="w-full rounded-xl border border-neutral-200 bg-white/70 px-4 py-3 font-semibold text-neutral-900 focus:border-[rgb(0,175,166)]"
+              >
+                <option value="">Ismingizni tanlang</option>
+                {students.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.full_name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-2 rounded-xl border border-[rgb(0,175,166)]/30 bg-[rgb(0,175,166)]/10 p-3">
+                <p className="text-xs font-bold text-[rgb(0,145,137)]">Ro'yxatda ismingiz yo'qmi?</p>
                 <a
                   href="https://t.me/sardorxon_me"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[rgb(0,175,166)] px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
                 >
                   Menejerga murojaat qilish
                 </a>
               </div>
-            ) : (
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-neutral-400">
-                <span>Ro'yxatda ismingiz yo'qmi?</span>
-                <a
-                  href="https://t.me/sardorxon_me"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-[rgb(0,145,137)] underline underline-offset-2"
-                >
-                  Menejerga murojaat qiling
-                </a>
-              </div>
-            ))}
+            </>
+          )}
         </div>
       )}
 

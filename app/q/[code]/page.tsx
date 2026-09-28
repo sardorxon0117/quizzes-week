@@ -4,6 +4,7 @@ import QuestionForm from "@/components/QuestionForm";
 import StudentHeader from "@/components/StudentHeader";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { gameStarted, notStartedMessage } from "@/lib/gameStart";
 
 async function getQuestion(code: string) {
   return queryOne<{ id: number; code: string; question: string; is_active: boolean }>(
@@ -30,6 +31,32 @@ async function getSubmission(questionId: number) {
 }
 
 export default async function QuestionPage({ params }: { params: { code: string } }) {
+  if (!gameStarted()) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <StudentHeader />
+        <main className="flex-1 px-5 py-10 sm:px-10 sm:py-14">
+          <div className="mx-auto max-w-2xl">
+            <div className="glass rounded-3xl px-6 py-14 text-center shadow-lg shadow-teal-900/5">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(0,175,166)] shadow-lg shadow-teal-900/30">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="white" strokeWidth="2.2" />
+                  <path d="M12 7v5l3 2" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <p className="text-lg font-black text-neutral-950 sm:text-xl">O'yin hali boshlanmadi</p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600 sm:text-base">{notStartedMessage()}</p>
+              <Link href="/" className="inline-block mt-6 text-sm font-semibold text-[rgb(0,175,166)] underline">
+                Bosh sahifaga qaytish
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const question = await getQuestion(params.code);
   const groups = await getGroups();
   const submission = question ? await getSubmission(question.id) : null;

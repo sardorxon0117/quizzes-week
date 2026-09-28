@@ -3,7 +3,7 @@ export type CodeCheckResult =
   | { kind: "not_found" }
   | { kind: "inactive" }
   | { kind: "already_answered"; groupName: string | null }
-  | { kind: "not_started"; message: string }
+  | { kind: "game_closed"; message: string }
   | { kind: "network_error" };
 
 /**
@@ -17,7 +17,7 @@ export async function checkQuestionCode(code: string): Promise<CodeCheckResult> 
     if (qRes.status === 404) return { kind: "not_found" };
     if (qRes.status === 403) {
       const data = await qRes.json().catch(() => null);
-      if (data?.notStarted) return { kind: "not_started", message: data.error };
+      if (data?.gameClosed) return { kind: "game_closed", message: data.error };
     }
     if (!qRes.ok) return { kind: "network_error" };
     const question = await qRes.json();
@@ -44,7 +44,7 @@ export function codeCheckMessage(result: CodeCheckResult): string {
       return "Bu savol hozir faol emas.";
     case "already_answered":
       return `Bu savolga ${result.groupName ?? "boshqa guruh"} tomonidan javob berilgan.`;
-    case "not_started":
+    case "game_closed":
       return result.message;
     case "network_error":
       return "Tekshirishda xatolik yuz berdi. Qaytadan urinib ko'ring.";

@@ -101,6 +101,10 @@ scripts/migrate.js              — Barcha migratsiyalar + admin foydalanuvchi +
 
 Bosh sahifadagi scanner blokidan keyin admin tahrirlay oladigan matn bloki chiqadi. Admin panelda **Musobaqa haqida** bo'limiga kirib (`/admin/menejer/content`), matnni **qalin (bold)**, *kursiv (italic)* qilishi va havolalar qo'shishi mumkin — o'zgarishlar darhol bosh sahifada ko'rinadi. Matn `settings` jadvalida (`competition_info` kaliti) saqlanadi va serverda oddiy allow-list sanitizatsiyadan o'tadi (faqat xavfsiz teglar: `b/strong`, `i/em`, `u`, `a`, `p`, `ul/ol/li`, `br`, `span`).
 
+## O'yin muddati
+
+Admin panelning **Musobaqa haqida** bo'limida (`/admin/menejer/content`) o'yinning boshlanish va tugash vaqti (Toshkent vaqti) belgilanadi. Shu oraliqdan tashqarida talabalar savolni ko'ra olmaydi va javob yubora olmaydi — o'rniga "O'yin ertaga/bugun, … da boshlanadi" yoki "O'yin … da yakunlangan" xabari va menejer bilan bog'lanish tugmasi chiqadi. Qiymatlar `settings` jadvalida (`game_start`, `game_end`) saqlanadi; ikkalasi ham ixtiyoriy.
+
 ## Talabalar va shaxsiy reyting
 
 Musobaqa endi nafaqat guruhlar, balki **talabalar** o'rtasida ham boradi. Savolga javob berishda talaba avval guruhini, so'ng aynan o'zini (guruh bo'yicha filtrlangan ro'yxatdan) tanlaydi — shu orqali har bir javob muayyan talabaga bog'lanadi.

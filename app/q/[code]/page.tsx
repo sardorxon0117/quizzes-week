@@ -4,7 +4,7 @@ import QuestionForm from "@/components/QuestionForm";
 import StudentHeader from "@/components/StudentHeader";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { gameStarted, notStartedMessage } from "@/lib/gameStart";
+import { getGameState } from "@/lib/gamePeriod";
 import ManagerContact from "@/components/ManagerContact";
 
 async function getQuestion(code: string) {
@@ -33,7 +33,8 @@ async function getSubmission(questionId: number) {
 }
 
 export default async function QuestionPage({ params }: { params: { code: string } }) {
-  if (!gameStarted()) {
+  const game = await getGameState();
+  if (game.status !== "open") {
     return (
       <div className="min-h-screen flex flex-col">
         <StudentHeader />
@@ -46,8 +47,10 @@ export default async function QuestionPage({ params }: { params: { code: string 
                   <path d="M12 7v5l3 2" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <p className="text-lg font-black text-neutral-950 sm:text-xl">O'yin hali boshlanmadi</p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600 sm:text-base">{notStartedMessage()}</p>
+              <p className="text-lg font-black text-neutral-950 sm:text-xl">
+                {game.status === "ended" ? "O'yin yakunlandi" : "O'yin hali boshlanmadi"}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600 sm:text-base">{game.message}</p>
               <ManagerContact
                 className="mx-auto mt-6 max-w-sm"
                 text="O'yin haqida ma'lumot olmoqchi bo'lsangiz, menejer bilan bog'laning."

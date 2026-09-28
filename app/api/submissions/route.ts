@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryOne, withTransaction } from "@/lib/db";
-import { gameStarted, notStartedMessage } from "@/lib/gameStart";
+import { getGameState } from "@/lib/gamePeriod";
 
 export async function GET(req: NextRequest) {
   const questionId = Number(req.nextUrl.searchParams.get("questionId"));
@@ -27,8 +27,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!gameStarted()) {
-    return NextResponse.json({ error: notStartedMessage() }, { status: 403 });
+  const game = await getGameState();
+  if (game.status !== "open") {
+    return NextResponse.json({ error: game.message }, { status: 403 });
   }
 
   let body: any;

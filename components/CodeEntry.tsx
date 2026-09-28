@@ -11,7 +11,7 @@ export default function CodeEntry() {
   const [code, setCode] = useState("");
   const [checkState, setCheckState] = useState<StatusPhase | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [notStarted, setNotStarted] = useState(false);
+  const [gameClosed, setGameClosed] = useState(false);
 
   const digits = code.padEnd(6, " ").split("").slice(0, 6);
 
@@ -29,7 +29,7 @@ export default function CodeEntry() {
     } else {
       setCheckState("error");
       setErrorMessage(codeCheckMessage(result));
-      setNotStarted(result.kind === "not_started");
+      setGameClosed(result.kind === "game_closed");
     }
   }
 
@@ -85,7 +85,7 @@ export default function CodeEntry() {
             phase={checkState}
             errorMessage={errorMessage}
             onRetry={checkState === "error" ? runCheck : undefined}
-            contactText={notStarted ? "O'yin haqida ma'lumot olmoqchi bo'lsangiz, menejer bilan bog'laning." : undefined}
+            contactText={gameClosed ? "O'yin haqida ma'lumot olmoqchi bo'lsangiz, menejer bilan bog'laning." : undefined}
           />
         </PopupShell>
       )}

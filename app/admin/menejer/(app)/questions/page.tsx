@@ -9,12 +9,15 @@ async function getQuestions() {
       sub.group_name AS answered_by, sub.student_name, sub.status AS submission_status
     FROM questions q
     LEFT JOIN LATERAL (
+      -- The currently-active submission (PENDING/CORRECT) that's actually
+      -- blocking the question — a WRONG one doesn't hold the lock, so it's
+      -- excluded here even though it still shows up on the So'rovlar list.
       SELECT g.name AS group_name, st.full_name AS student_name, s.status, s.submitted_at
       FROM submissions s
       JOIN groups g ON g.id = s.group_id
       LEFT JOIN students st ON st.id = s.student_id
-      WHERE s.question_id = q.id
-      ORDER BY s.submitted_at ASC
+      WHERE s.question_id = q.id AND s.status IN ('PENDING', 'CORRECT')
+      ORDER BY s.submitted_at DESC
       LIMIT 1
     ) sub ON true
     ORDER BY q.created_at DESC

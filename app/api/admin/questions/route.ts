@@ -18,8 +18,8 @@ export async function GET() {
       FROM submissions s
       JOIN groups g ON g.id = s.group_id
       LEFT JOIN students st ON st.id = s.student_id
-      WHERE s.question_id = q.id
-      ORDER BY s.submitted_at ASC
+      WHERE s.question_id = q.id AND s.status IN ('PENDING', 'CORRECT')
+      ORDER BY s.submitted_at DESC
       LIMIT 1
     ) sub ON true
     ORDER BY q.created_at DESC

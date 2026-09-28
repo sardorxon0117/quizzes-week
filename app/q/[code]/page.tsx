@@ -25,7 +25,8 @@ async function getSubmission(questionId: number) {
      FROM submissions s
      JOIN groups g ON g.id = s.group_id
      LEFT JOIN students st ON st.id = s.student_id
-     WHERE s.question_id = $1 ORDER BY s.submitted_at ASC LIMIT 1`,
+     WHERE s.question_id = $1 AND s.status IN ('PENDING', 'CORRECT')
+     ORDER BY s.submitted_at DESC LIMIT 1`,
     [questionId]
   );
 }

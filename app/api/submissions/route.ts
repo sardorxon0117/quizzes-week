@@ -9,13 +9,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Noto'g'ri so'rov" }, { status: 400 });
   }
 
+  // "Answered" means someone currently holds the lock on this question — a
+  // PENDING submission awaiting review, or a confirmed CORRECT one. A WRONG
+  // submission doesn't block anyone; the question reopens for other groups.
   const submission = await queryOne(
     `SELECT s.id, s.status, s.submitted_at, g.name AS group_name, st.full_name AS student_name
      FROM submissions s
      JOIN groups g ON g.id = s.group_id
      LEFT JOIN students st ON st.id = s.student_id
-     WHERE s.question_id = $1
-     ORDER BY s.submitted_at ASC
+     WHERE s.question_id = $1 AND s.status IN ('PENDING', 'CORRECT')
+     ORDER BY s.submitted_at DESC
      LIMIT 1`,
     [questionId]
   );
@@ -66,9 +69,12 @@ export async function POST(req: NextRequest) {
         return { error: "Talaba tanlangan guruhda topilmadi. Qaytadan tanlang.", status: 404 };
       }
 
+      // Only a PENDING (awaiting review) or CORRECT submission blocks others —
+      // a WRONG one reopens the question for a different group to try.
       const existing = await client.query(
         `SELECT g.name AS group_name FROM submissions s JOIN groups g ON g.id = s.group_id
-         WHERE s.question_id = $1 ORDER BY s.submitted_at ASC LIMIT 1`,
+         WHERE s.question_id = $1 AND s.status IN ('PENDING', 'CORRECT')
+         ORDER BY s.submitted_at DESC LIMIT 1`,
         [questionId]
       );
       if (existing.rowCount) {
@@ -79,12 +85,21 @@ export async function POST(req: NextRequest) {
         };
       }
 
-      const inserted = await client.query(
-        `INSERT INTO submissions (question_id, group_id, student_id, student_answer, status)
-         VALUES ($1, $2, $3, $4, 'PENDING') RETURNING id, status, submitted_at`,
-        [questionId, groupId, studentId, String(answer).trim()]
-      );
-      return { data: inserted.rows[0], status: 201 };
+      try {
+        const inserted = await client.query(
+          `INSERT INTO submissions (question_id, group_id, student_id, student_answer, status)
+           VALUES ($1, $2, $3, $4, 'PENDING') RETURNING id, status, submitted_at`,
+          [questionId, groupId, studentId, String(answer).trim()]
+        );
+        return { data: inserted.rows[0], status: 201 };
+      } catch (e: any) {
+        // UNIQUE(question_id, group_id): this group already has a (WRONG) attempt on
+        // this question and, per that rule, doesn't get a second try — only another group does.
+        if (e?.code === "23505") {
+          return { error: "Sizning guruhingiz bu savolga avval javob bergan.", status: 409 };
+        }
+        throw e;
+      }
     });
 
     if (result.error) {

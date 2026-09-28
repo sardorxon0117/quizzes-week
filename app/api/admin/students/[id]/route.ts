@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query, queryOne } from "@/lib/db";
+import { query, queryOne, withTransaction } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
@@ -51,17 +51,13 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   const existing = await queryOne(`SELECT id FROM students WHERE id = $1`, [params.id]);
   if (!existing) return NextResponse.json({ error: "Talaba topilmadi" }, { status: 404 });
 
-  const hasSubmissions = await queryOne(`SELECT id FROM submissions WHERE student_id = $1 LIMIT 1`, [params.id]);
-  if (hasSubmissions) {
-    // soft-delete: deactivate instead of hard delete, to preserve submission history
-    const rows = await query(
-      `UPDATE students SET is_active = FALSE, updated_at = NOW() WHERE id = $1
-       RETURNING id, full_name, is_active`,
-      [params.id]
-    );
-    return NextResponse.json({ ...rows[0], softDeleted: true });
-  }
+  // Deleting a student removes their submission(s) too — if that answer was
+  // the one holding the question's lock (PENDING/CORRECT), the question
+  // reopens for another group, same as if it had been marked WRONG.
+  await withTransaction(async (client) => {
+    await client.query(`DELETE FROM submissions WHERE student_id = $1`, [params.id]);
+    await client.query(`DELETE FROM students WHERE id = $1`, [params.id]);
+  });
 
-  await query(`DELETE FROM students WHERE id = $1`, [params.id]);
   return NextResponse.json({ ok: true });
 }

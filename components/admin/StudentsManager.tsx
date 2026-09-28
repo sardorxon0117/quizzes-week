@@ -96,13 +96,8 @@ export default function StudentsManager({
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    const res = await fetch(`/api/admin/students/${deleteTarget.id}`, { method: "DELETE" });
-    const data = await res.json();
-    if (data.softDeleted) {
-      setStudents((prev) => prev.map((s) => (s.id === deleteTarget.id ? { ...s, is_active: false } : s)));
-    } else {
-      setStudents((prev) => prev.filter((s) => s.id !== deleteTarget.id));
-    }
+    await fetch(`/api/admin/students/${deleteTarget.id}`, { method: "DELETE" });
+    setStudents((prev) => prev.filter((s) => s.id !== deleteTarget.id));
     setDeleteTarget(null);
   }
 
@@ -267,7 +262,10 @@ export default function StudentsManager({
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="glass w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl">
-            <p className="font-bold text-neutral-900 mb-6">"{deleteTarget.full_name}"ni o'chirishni xohlaysizmi?</p>
+            <p className="font-bold text-neutral-900">"{deleteTarget.full_name}"ni o'chirishni xohlaysizmi?</p>
+            <p className="mt-2 mb-6 text-xs text-red-600">
+              Bu talabaning bergan javobi (agar bo'lsa) ham butunlay o'chib ketadi. Bu amalni bekor qilib bo'lmaydi.
+            </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setDeleteTarget(null)}

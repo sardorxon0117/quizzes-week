@@ -1,3 +1,5 @@
+import ManagerContact from "./ManagerContact";
+
 export type StatusPhase = "checking" | "redirecting" | "error";
 
 export default function StatusView({
@@ -5,15 +7,18 @@ export default function StatusView({
   label,
   errorMessage,
   onRetry,
+  contactText,
 }: {
   phase: StatusPhase;
   label?: string;
   errorMessage?: string;
   onRetry?: () => void;
+  /** When set, shows a "contact the manager" banner under the error instead of a retry button. */
+  contactText?: string;
 }) {
   if (phase === "error") {
     return (
-      <div className="flex flex-col items-center gap-4 py-8 text-center">
+      <div className={`flex flex-col items-center text-center ${contactText ? "gap-3 py-2" : "gap-4 py-8"}`}>
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
           <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
             <path d="M12 9v4M12 17h.01" stroke="rgb(220,38,38)" strokeWidth="2.2" strokeLinecap="round" />
@@ -21,7 +26,8 @@ export default function StatusView({
           </svg>
         </div>
         <p className="max-w-xs text-sm font-semibold leading-6 text-neutral-800">{errorMessage}</p>
-        {onRetry && (
+        {contactText && <ManagerContact className="w-full max-w-xs text-center" text={contactText} />}
+        {onRetry && !contactText && (
           <button
             type="button"
             onClick={onRetry}

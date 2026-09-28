@@ -37,6 +37,7 @@ export default function QRScanner() {
   const [canSwitch, setCanSwitch] = useState(false);
   const [phase, setPhase] = useState<StatusPhase | "scanning">("scanning");
   const [errorMessage, setErrorMessage] = useState("");
+  const [notStarted, setNotStarted] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -84,6 +85,7 @@ export default function QRScanner() {
     } else {
       setPhase("error");
       setErrorMessage(codeCheckMessage(result));
+      setNotStarted(result.kind === "not_started");
     }
   }
 
@@ -241,6 +243,11 @@ export default function QRScanner() {
               label={statusLabel}
               errorMessage={errorMessage}
               onRetry={phase === "error" ? handleRetry : undefined}
+              contactText={
+                phase === "error" && notStarted
+                  ? "O'yin haqida ma'lumot olmoqchi bo'lsangiz, menejer bilan bog'laning."
+                  : undefined
+              }
             />
           </div>
         )}

@@ -5,6 +5,7 @@ import StudentHeader from "@/components/StudentHeader";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { gameStarted, notStartedMessage } from "@/lib/gameStart";
+import ManagerContact from "@/components/ManagerContact";
 
 async function getQuestion(code: string) {
   return queryOne<{ id: number; code: string; question: string; is_active: boolean }>(
@@ -47,6 +48,10 @@ export default async function QuestionPage({ params }: { params: { code: string 
               </div>
               <p className="text-lg font-black text-neutral-950 sm:text-xl">O'yin hali boshlanmadi</p>
               <p className="mt-2 text-sm leading-6 text-neutral-600 sm:text-base">{notStartedMessage()}</p>
+              <ManagerContact
+                className="mx-auto mt-6 max-w-sm"
+                text="O'yin haqida ma'lumot olmoqchi bo'lsangiz, menejer bilan bog'laning."
+              />
               <Link href="/" className="inline-block mt-6 text-sm font-semibold text-[rgb(0,175,166)] underline">
                 Bosh sahifaga qaytish
               </Link>

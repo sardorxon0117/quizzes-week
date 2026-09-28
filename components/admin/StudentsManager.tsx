@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
+// Names come from mixed sources with ‘ ’ ` ʻ ʼ all used for the Uzbek
+// apostrophe (O‘G‘LI vs O'G'LI) — fold them so a search matches either.
+function normalizeForSearch(s: string) {
+  return s.toLowerCase().replace(/[‘’`ʻʼ]/g, "'").replace(/\s+/g, " ").trim();
+}
 
 type Group = { id: number; name: string };
 
@@ -33,6 +39,18 @@ export default function StudentsManager({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = normalizeForSearch(search);
+    return students.filter(
+      (s) =>
+        (!groupFilter || String(s.group_id) === groupFilter) &&
+        (!q || normalizeForSearch(s.full_name).includes(q) || normalizeForSearch(s.student_code).includes(q))
+    );
+  }, [students, search, groupFilter]);
 
   const [uploading, setUploading] = useState(false);
   const [uploadSummary, setUploadSummary] = useState<UploadSummary | null>(null);
@@ -155,11 +173,46 @@ export default function StudentsManager({
         <strong className="text-neutral-700">3-ustun</strong> — talaba ID. Birinchi qator sarlavha deb qabul qilinadi.
       </p>
 
+      {students.length > 0 && (
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <svg viewBox="0 0 24 24" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Ism yoki ID bo'yicha qidirish"
+              className="w-full rounded-xl border border-neutral-200 bg-white/70 py-2.5 pl-9 pr-3 text-sm focus:border-[rgb(0,175,166)]"
+            />
+          </div>
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2.5 text-sm font-semibold text-neutral-800 focus:border-[rgb(0,175,166)] sm:w-48"
+          >
+            <option value="">Barcha guruhlar</option>
+            {groups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+          {(search || groupFilter) && (
+            <span className="shrink-0 text-xs font-semibold text-neutral-500">{filtered.length} ta topildi</span>
+          )}
+        </div>
+      )}
+
       {students.length === 0 ? (
         <div className="glass rounded-3xl text-center py-20 text-neutral-400">Hozircha talabalar yo'q</div>
+      ) : filtered.length === 0 ? (
+        <div className="glass rounded-3xl text-center py-20 text-neutral-400">Hech narsa topilmadi</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {students.map((s) => (
+          {filtered.map((s) => (
             <div key={s.id} className="glass rounded-3xl p-4 shadow-lg shadow-teal-900/5">
               <div className="flex items-start justify-between mb-2 gap-2">
                 <span className="rounded-full bg-[rgb(0,175,166)]/10 px-2.5 py-0.5 text-[10px] font-bold text-[rgb(0,145,137)]">
